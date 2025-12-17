@@ -2,122 +2,39 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control Materiales Ushuaia</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-    }
-
-    .pantalla {
-      display: none;
-      padding: 20px;
-    }
-
-    .activa {
-      display: block;
-    }
-
-    /* Splash */
-    #splash {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: #000;
-      color: #fff;
-      font-size: 32px;
-      animation: zoom 2s forwards;
-    }
-
-    @keyframes zoom {
-      from { transform: scale(0.5); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    select, input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      font-size: 16px;
-    }
-
-    button {
-      background: #000;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    li {
-      background: #fff;
-      padding: 8px;
-      margin-top: 5px;
-      display: flex;
-      justify-content: space-between;
-      border-radius: 4px;
-    }
-
-    canvas {
-      border: 1px solid #000;
-      width: 100%;
-      height: 150px;
-      touch-action: none;
-    }
-
-    #comprobante {
-      margin-top: 20px;
-    }
-  </style>
+  <!-- CSS -->
+  <link rel="stylesheet" href="./css/styles.css">
 </head>
-
 <body>
 
   <!-- SPLASH -->
-  <div id="splash">Control Materiales Ushuaia</div>
+  <div id="splash">
+    <h1 class="splash-text">Control Materiales Ushuaia</h1>
+  </div>
 
-  <!-- PANTALLA DATOS -->
+  <!-- PASO 1 -->
   <div id="pantallaDatos" class="pantalla">
-    <h2>Seleccionar técnico</h2>
+    <h2>Técnico</h2>
 
     <select id="tecnico">
-      <option value="">-- Seleccione --</option>
-      <option>SARTORI PABLO FACUNDO</option>
-      <option>FIONNA LUCAS ISMAEL</option>
-      <option>FAZZI JUAN PABLO</option>
-      <option>FERNANDEZ OYARZO CRISTIAN MARCELO</option>
-      <option>MORENO LUIS HERMENEGILDO</option>
-      <option>CARDENAS OYARZO MANUEL HERNAN</option>
-      <option>SANTANA ANGEL</option>
-      <option>GOBBI FABIAN EDGARDO</option>
-      <option>GODOY GUILLERMO ADOLFO</option>
-      <option>RODRIGUEZ DIEGO RAUL</option>
-      <option>ACOSTA TOMAS ALBERTO</option>
-      <option>MORENO JAVIER ANDRES</option>
-      <option>ORUÉ HERNÁN</option>
+      <option value="">Seleccione técnico</option>
+      <option value="Juan Perez">Juan Perez</option>
+      <option value="Carlos Gomez">Carlos Gomez</option>
+      <option value="Martin Lopez">Martin Lopez</option>
     </select>
 
     <button onclick="irMateriales()">Siguiente</button>
   </div>
 
-  <!-- PANTALLA MATERIALES -->
+  <!-- PASO 2 -->
   <div id="pantallaMateriales" class="pantalla">
-    <h2>Cargar materiales</h2>
+    <h2>Carga de materiales</h2>
 
-    <input type="text" id="buscador" placeholder="Buscar material">
-    <input type="number" id="cantidad" placeholder="Cantidad">
+    <input type="text" id="buscador" placeholder="Material">
+    <input type="number" id="cantidad" placeholder="Cantidad" min="1">
 
     <button onclick="agregarMaterial()">➕ Agregar</button>
 
@@ -126,78 +43,27 @@
     <button onclick="irFirma()">Siguiente</button>
   </div>
 
-  <!-- PANTALLA FIRMA -->
+  <!-- PASO 3 -->
   <div id="pantallaFirma" class="pantalla">
-    <h2>Firma</h2>
+    <h2>Firma del técnico</h2>
 
-    <canvas id="firmaCanvas"></canvas>
+    <canvas id="canvasFirma" width="300" height="150"></canvas>
 
-    <button onclick="limpiarFirma()">Limpiar firma</button>
-    <button onclick="finalizar()">Finalizar</button>
+    <div class="firma-botones">
+      <button onclick="limpiarFirma()">Limpiar</button>
+      <button onclick="finalizar()">Finalizar</button>
+    </div>
+  </div>
 
+  <!-- COMPROBANTE -->
+  <div id="pantallaComprobante" class="pantalla">
     <div id="comprobante"></div>
   </div>
 
-  <script src="firma.js"></script>
-  <script src="comprobante.js"></script>
-
-  <script>
-    const materiales = [
-      "Cable coaxil RG6 C/portante",
-      "Fibra Optica Monomodo Drop 1 Hilos Fig8",
-      "Identificador de cable Rojo",
-      "Ficha F de compresión RG6",
-      "Splitter X 4 salidas Domiciliario",
-      "ONT Zhone 2427A",
-      "Deco HD MPEG-4"
-    ];
-
-    let materialesCargados = [];
-
-    setTimeout(() => {
-      document.getElementById("splash").style.display = "none";
-      document.getElementById("pantallaDatos").classList.add("activa");
-    }, 2000);
-
-    function irMateriales() {
-      if (!tecnico.value) return alert("Seleccione técnico");
-      pantallaDatos.classList.remove("activa");
-      pantallaMateriales.classList.add("activa");
-    }
-
-    function agregarMaterial() {
-      if (!buscador.value || !cantidad.value) return;
-
-      materialesCargados.push({
-        codigo: "-",
-        descripcion: buscador.value,
-        cantidad: cantidad.value
-      });
-
-      const li = document.createElement("li");
-      li.innerHTML = <span>${buscador.value}</span><span>${cantidad.value}</span>;
-      lista.appendChild(li);
-
-      buscador.value = "";
-      cantidad.value = "";
-    }
-
-    function irFirma() {
-      pantallaMateriales.classList.remove("activa");
-      pantallaFirma.classList.add("activa");
-    }
-
-    function finalizar() {
-      const html = generarComprobante({
-        tecnico: tecnico.value,
-        materiales: materialesCargados,
-        firma: obtenerFirmaBase64()
-      });
-
-      comprobante.innerHTML = html;
-      alert("Carga exitosa");
-    }
-  </script>
+  <!-- SCRIPTS -->
+  <script src="./js/firma.js"></script>
+  <script src="./js/comprobante.js"></script>
+  <script src="./js/app.js"></script>
 
 </body>
 </html>
