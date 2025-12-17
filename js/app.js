@@ -5,11 +5,12 @@ let materialesCargados = [];
 let tecnicoSeleccionado = "";
 
 /*********
- * SPLASH INICIAL
+ * SPLASH INICIAL (FIX DEFINITIVO)
  *********/
-window.addEventListener("load", () => {
+document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
-    document.getElementById("splash").style.display = "none";
+    const splash = document.getElementById("splash");
+    if (splash) splash.style.display = "none";
     mostrarPantalla("pantallaDatos");
   }, 2000);
 });
@@ -21,7 +22,9 @@ function mostrarPantalla(id) {
   document.querySelectorAll(".pantalla").forEach(p => {
     p.classList.remove("activa");
   });
-  document.getElementById(id).classList.add("activa");
+
+  const pantalla = document.getElementById(id);
+  if (pantalla) pantalla.classList.add("activa");
 }
 
 /*********
@@ -46,6 +49,8 @@ function agregarMaterial() {
   const buscador = document.getElementById("buscador");
   const cantidad = document.getElementById("cantidad");
 
+  if (!buscador || !cantidad) return;
+
   if (!buscador.value || !cantidad.value || cantidad.value <= 0) {
     alert("Complete material y cantidad");
     return;
@@ -66,9 +71,11 @@ function agregarMaterial() {
 
 function renderListaMateriales() {
   const lista = document.getElementById("lista");
+  if (!lista) return;
+
   lista.innerHTML = "";
 
-  materialesCargados.forEach((m, i) => {
+  materialesCargados.forEach(m => {
     const li = document.createElement("li");
     li.innerHTML = `
       <span>${m.descripcion}</span>
@@ -83,6 +90,7 @@ function irFirma() {
     alert("Debe cargar al menos un material");
     return;
   }
+
   mostrarPantalla("pantallaFirma");
 }
 
@@ -103,12 +111,12 @@ function finalizar() {
     firma: firma
   });
 
-  document.getElementById("comprobante").innerHTML = comprobanteHTML;
+  const comprobante = document.getElementById("comprobante");
+  if (comprobante) comprobante.innerHTML = comprobanteHTML;
 
   alert("Carga exitosa");
 
-  // Reset opcional (comentado por si no querés)
-  // resetearFormulario();
+  // resetearFormulario(); // opcional
 }
 
 /*********
@@ -118,9 +126,13 @@ function resetearFormulario() {
   materialesCargados = [];
   tecnicoSeleccionado = "";
 
-  document.getElementById("tecnico").value = "";
-  document.getElementById("lista").innerHTML = "";
-  limpiarFirma();
+  const tecnico = document.getElementById("tecnico");
+  if (tecnico) tecnico.value = "";
+
+  const lista = document.getElementById("lista");
+  if (lista) lista.innerHTML = "";
+
+  if (typeof limpiarFirma === "function") limpiarFirma();
 
   mostrarPantalla("pantallaDatos");
 }
