@@ -2,52 +2,202 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Control de Materiales Ushuaia</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/style.css">
+  <title>Control Materiales Ushuaia</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
+
+    .pantalla {
+      display: none;
+      padding: 20px;
+    }
+
+    .activa {
+      display: block;
+    }
+
+    /* Splash */
+    #splash {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #000;
+      color: #fff;
+      font-size: 32px;
+      animation: zoom 2s forwards;
+    }
+
+    @keyframes zoom {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    h2 {
+      margin-top: 0;
+    }
+
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    button {
+      background: #000;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: #fff;
+      padding: 8px;
+      margin-top: 5px;
+      display: flex;
+      justify-content: space-between;
+      border-radius: 4px;
+    }
+
+    canvas {
+      border: 1px solid #000;
+      width: 100%;
+      height: 150px;
+      touch-action: none;
+    }
+
+    #comprobante {
+      margin-top: 20px;
+    }
+  </style>
 </head>
+
 <body>
 
   <!-- SPLASH -->
-  <div id="splash">
-    <h1>Control de Materiales<br>Ushuaia</h1>
+  <div id="splash">Control Materiales Ushuaia</div>
+
+  <!-- PANTALLA DATOS -->
+  <div id="pantallaDatos" class="pantalla">
+    <h2>Seleccionar técnico</h2>
+
+    <select id="tecnico">
+      <option value="">-- Seleccione --</option>
+      <option>SARTORI PABLO FACUNDO</option>
+      <option>FIONNA LUCAS ISMAEL</option>
+      <option>FAZZI JUAN PABLO</option>
+      <option>FERNANDEZ OYARZO CRISTIAN MARCELO</option>
+      <option>MORENO LUIS HERMENEGILDO</option>
+      <option>CARDENAS OYARZO MANUEL HERNAN</option>
+      <option>SANTANA ANGEL</option>
+      <option>GOBBI FABIAN EDGARDO</option>
+      <option>GODOY GUILLERMO ADOLFO</option>
+      <option>RODRIGUEZ DIEGO RAUL</option>
+      <option>ACOSTA TOMAS ALBERTO</option>
+      <option>MORENO JAVIER ANDRES</option>
+      <option>ORUÉ HERNÁN</option>
+    </select>
+
+    <button onclick="irMateriales()">Siguiente</button>
   </div>
 
-  <!-- APP -->
-  <div id="app" class="hidden">
+  <!-- PANTALLA MATERIALES -->
+  <div id="pantallaMateriales" class="pantalla">
+    <h2>Cargar materiales</h2>
 
-    <!-- PASO 1 -->
-    <section id="paso-tecnico">
-      <h2>Seleccionar Técnico</h2>
-      <input type="text" id="inputTecnico" placeholder="Buscar técnico...">
-      <ul id="listaTecnicos"></ul>
-      <button id="btnTecnico" disabled>Continuar</button>
-    </section>
+    <input type="text" id="buscador" placeholder="Buscar material">
+    <input type="number" id="cantidad" placeholder="Cantidad">
 
-    <!-- PASO 2 -->
-    <section id="paso-materiales" class="hidden">
-      <h2>Cargar Materiales</h2>
-      <input type="text" id="inputMaterial" placeholder="Buscar material...">
-      <ul id="listaMateriales"></ul>
+    <button onclick="agregarMaterial()">➕ Agregar</button>
 
-      <h3>Materiales cargados</h3>
-      <ul id="resumen"></ul>
+    <ul id="lista"></ul>
 
-      <button id="btnFirma">Siguiente</button>
-    </section>
-
-    <!-- PASO 3 -->
-    <section id="paso-firma" class="hidden">
-      <h2>Firma del Técnico</h2>
-      <canvas id="canvasFirma"></canvas>
-      <button id="btnFinalizar">Finalizar</button>
-    </section>
-
+    <button onclick="irFirma()">Siguiente</button>
   </div>
 
-  <script src="js/tecnicos.js"></script>
-  <script src="js/materiales.js"></script>
-  <script src="js/app.js"></script>
+  <!-- PANTALLA FIRMA -->
+  <div id="pantallaFirma" class="pantalla">
+    <h2>Firma</h2>
+
+    <canvas id="firmaCanvas"></canvas>
+
+    <button onclick="limpiarFirma()">Limpiar firma</button>
+    <button onclick="finalizar()">Finalizar</button>
+
+    <div id="comprobante"></div>
+  </div>
+
+  <script src="firma.js"></script>
+  <script src="comprobante.js"></script>
+
+  <script>
+    const materiales = [
+      "Cable coaxil RG6 C/portante",
+      "Fibra Optica Monomodo Drop 1 Hilos Fig8",
+      "Identificador de cable Rojo",
+      "Ficha F de compresión RG6",
+      "Splitter X 4 salidas Domiciliario",
+      "ONT Zhone 2427A",
+      "Deco HD MPEG-4"
+    ];
+
+    let materialesCargados = [];
+
+    setTimeout(() => {
+      document.getElementById("splash").style.display = "none";
+      document.getElementById("pantallaDatos").classList.add("activa");
+    }, 2000);
+
+    function irMateriales() {
+      if (!tecnico.value) return alert("Seleccione técnico");
+      pantallaDatos.classList.remove("activa");
+      pantallaMateriales.classList.add("activa");
+    }
+
+    function agregarMaterial() {
+      if (!buscador.value || !cantidad.value) return;
+
+      materialesCargados.push({
+        codigo: "-",
+        descripcion: buscador.value,
+        cantidad: cantidad.value
+      });
+
+      const li = document.createElement("li");
+      li.innerHTML = <span>${buscador.value}</span><span>${cantidad.value}</span>;
+      lista.appendChild(li);
+
+      buscador.value = "";
+      cantidad.value = "";
+    }
+
+    function irFirma() {
+      pantallaMateriales.classList.remove("activa");
+      pantallaFirma.classList.add("activa");
+    }
+
+    function finalizar() {
+      const html = generarComprobante({
+        tecnico: tecnico.value,
+        materiales: materialesCargados,
+        firma: obtenerFirmaBase64()
+      });
+
+      comprobante.innerHTML = html;
+      alert("Carga exitosa");
+    }
+  </script>
 
 </body>
 </html>
