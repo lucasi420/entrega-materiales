@@ -1,14 +1,16 @@
+/* CONFIGURACIÓN GENERAL */
 * {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: #f2f4f7;
+  color: #333;
 }
 
-/* SPLASH */
+/* SPLASH SCREEN */
 #splash {
   position: fixed;
   inset: 0;
@@ -17,100 +19,133 @@ body {
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  animation: fadeOut 0.6s ease forwards;
-  animation-delay: 2s;
+  transition: opacity 0.6s ease, visibility 0.6s;
 }
 
 #splash h1 {
   color: white;
   font-size: 2rem;
   text-align: center;
-  animation: zoomIn 2s ease forwards;
+  animation: zoomIn 1.5s ease forwards;
 }
 
 @keyframes zoomIn {
-  from {
-    transform: scale(0.4);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.6); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
-@keyframes fadeOut {
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-/* APP */
-.hidden {
-  display: none;
-}
-
-#app {
-  max-width: 480px;
-  margin: auto;
-  padding: 16px;
-}
-
-section {
+/* SISTEMA DE PANTALLAS */
+.pantalla {
+  display: none; /* Oculto por defecto */
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 25px;
   background: white;
-  padding: 16px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.1);
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
+/* Esta clase la activa el app.js */
+.pantalla.activa {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* FORMULARIOS Y ELEMENTOS */
 h2 {
   margin-top: 0;
+  color: #0b3c5d;
   text-align: center;
+  border-bottom: 2px solid #f2f4f7;
+  padding-bottom: 10px;
 }
 
-input {
+select, input {
   width: 100%;
-  padding: 12px;
-  margin: 10px 0;
+  padding: 14px;
+  margin: 12px 0;
   font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fafafa;
 }
 
 button {
   width: 100%;
-  padding: 14px;
-  margin-top: 12px;
+  padding: 15px;
+  margin-top: 15px;
   font-size: 16px;
+  font-weight: bold;
   background: #1d70b8;
   color: white;
   border: none;
   border-radius: 8px;
-}
-
-button:disabled {
-  background: #bbb;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-li {
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-li:hover {
-  background: #e8f1fb;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
-/* Firma */
+button:hover {
+  background: #0b3c5d;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* LISTA DE MATERIALES */
+#lista {
+  margin-top: 20px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+}
+
+#lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  border-left: 4px solid #1d70b8;
+}
+
+#lista li span:first-child {
+  font-weight: 500;
+}
+
+/* FIRMA */
 #canvasFirma {
   width: 100%;
   height: 200px;
+  background-color: #fff;
   border: 2px dashed #999;
-  margin-top: 10px;
+  border-radius: 8px;
+  margin-top: 15px;
+  touch-action: none; /* Crucial para firmas en móviles */
+}
+
+.firma-botones {
+  display: flex;
+  gap: 10px;
+}
+
+.firma-botones button:first-child {
+  background: #6c757d;
+}
+
+/* COMPROBANTE FINAL */
+#comprobante {
+  background: #fff;
+  padding: 20px;
+}
+
+#comprobante h3 {
+  text-align: center;
+  color: #28a745;
 }
