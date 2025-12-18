@@ -1,7 +1,25 @@
 let materialesCargados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Carga de datos
+    cargarListas();
+
+    // Sincronización del cartel de inicio
+    setTimeout(() => {
+        const splash = document.getElementById("splash");
+        const app = document.getElementById("app");
+
+        app.style.display = "block";
+        mostrarPantalla("pantallaPrincipal");
+
+        setTimeout(() => {
+            splash.style.opacity = "0";
+            app.style.opacity = "1";
+            setTimeout(() => { splash.style.display = "none"; }, 800);
+        }, 100);
+    }, 3300); 
+});
+
+function cargarListas() {
     if (typeof TECNICOS !== "undefined") {
         const sel = document.getElementById("tecnico");
         TECNICOS.sort().forEach(t => {
@@ -16,29 +34,16 @@ document.addEventListener("DOMContentLoaded", () => {
             dl.appendChild(o);
         });
     }
-
-    // 2. Transición del Splash (Cartel animado)
-    setTimeout(() => {
-        const splash = document.getElementById("splash");
-        const app = document.getElementById("app");
-
-        document.body.style.background = "#f2f4f7"; // Fondo gris app
-        app.style.display = "block";
-        mostrarPantalla("pantallaPrincipal");
-
-        setTimeout(() => {
-            splash.style.opacity = "0";
-            app.style.opacity = "1";
-            document.body.style.overflow = "auto";
-            setTimeout(() => { splash.style.display = "none"; }, 800);
-        }, 100);
-    }, 3300); 
-});
+}
 
 function mostrarPantalla(id) {
-    document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
-    document.getElementById(id).classList.add("activa");
-    window.scrollTo(0,0);
+    // Primero ocultamos todas de forma absoluta
+    document.querySelectorAll(".pantalla").forEach(p => {
+        p.classList.remove("activa");
+    });
+    // Activamos solo la que corresponde
+    const pantallaActual = document.getElementById(id);
+    pantallaActual.classList.add("activa");
 }
 
 function agregarMaterial() {
@@ -50,6 +55,8 @@ function agregarMaterial() {
         materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: ic.value });
         renderLista();
         ib.value = ""; ic.value = "";
+    } else {
+        alert("Seleccione material y cantidad");
     }
 }
 
@@ -60,21 +67,20 @@ function renderLista() {
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
         li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
-                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="width:auto; background:red; padding:5px 10px; margin:0;">🗑️</button>`;
+                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="width:auto; background:#dc3545; padding:5px 12px; margin:0;">🗑️</button>`;
         ui.appendChild(li);
     });
 }
 
 function irAFirma() {
-    if (!document.getElementById("tecnico").value) return alert("Seleccione un técnico primero");
+    if (!document.getElementById("tecnico").value) return alert("Seleccione el técnico");
     mostrarPantalla("pantallaFirma");
+    // El canvas necesita un pequeño tiempo para calcular su tamaño una vez la pantalla es visible
     if (typeof ajustarCanvas === "function") setTimeout(ajustarCanvas, 200);
 }
 
 function finalizar() {
     const firma = obtenerFirmaBase64();
-    if (firma.length < 2000) return alert("La firma es obligatoria");
-    
-    // Aquí podrías enviar los datos a un servidor si fuera necesario
+    if (firma.length < 2000) return alert("Firme el registro");
     mostrarPantalla("pantallaComprobante");
 }
