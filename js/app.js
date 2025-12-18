@@ -1,25 +1,50 @@
+/**
+ * APP CONTROLER - Control Materiales Ushuaia
+ */
+
 let materialesCargados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
-    cargarListas();
+    // 1. Poblado de datos iniciales
+    inicializarDatos();
 
-    // Sincronización del cartel de inicio
+    // 2. Orquestación del Splash (3.5 segundos de cine)
     setTimeout(() => {
-        const splash = document.getElementById("splash");
-        const app = document.getElementById("app");
-
-        app.style.display = "block";
+        // Hacemos que la app sea visible en el DOM antes de mostrar la pantalla
+        document.getElementById("app").style.display = "block";
+        
+        // Cambiamos de instancia
         mostrarPantalla("pantallaPrincipal");
 
+        // Pequeño delay para que la opacidad de la app suba suavemente si lo configuraste en main.css
         setTimeout(() => {
-            splash.style.opacity = "0";
-            app.style.opacity = "1";
-            setTimeout(() => { splash.style.display = "none"; }, 800);
-        }, 100);
-    }, 3300); 
+            document.getElementById("app").style.opacity = "1";
+        }, 50);
+
+    }, 3500); 
 });
 
-function cargarListas() {
+// FUNCIÓN MAESTRA DE NAVEGACIÓN
+function mostrarPantalla(id) {
+    // Ocultamos todas las pantallas quitando la clase 'activa'
+    document.querySelectorAll('.pantalla').forEach(p => {
+        p.classList.remove('activa');
+    });
+
+    // Activamos la instancia deseada
+    const pantallaDestino = document.getElementById(id);
+    if (pantallaDestino) {
+        pantallaDestino.classList.add('activa');
+    }
+
+    // Si entramos a la firma, ajustamos el canvas para que detecte su nuevo tamaño
+    if (id === 'pantallaFirma' && typeof ajustarCanvas === "function") {
+        setTimeout(ajustarCanvas, 250);
+    }
+}
+
+function inicializarDatos() {
+    // Técnicos
     if (typeof TECNICOS !== "undefined") {
         const sel = document.getElementById("tecnico");
         TECNICOS.sort().forEach(t => {
@@ -27,6 +52,7 @@ function cargarListas() {
             sel.appendChild(o);
         });
     }
+    // Materiales
     if (typeof MATERIALES !== "undefined") {
         const dl = document.getElementById("listaSugerencias");
         MATERIALES.forEach(m => {
@@ -36,51 +62,67 @@ function cargarListas() {
     }
 }
 
-function mostrarPantalla(id) {
-    // Primero ocultamos todas de forma absoluta
-    document.querySelectorAll(".pantalla").forEach(p => {
-        p.classList.remove("activa");
-    });
-    // Activamos solo la que corresponde
-    const pantallaActual = document.getElementById(id);
-    pantallaActual.classList.add("activa");
-}
-
 function agregarMaterial() {
-    const ib = document.getElementById("buscador");
-    const ic = document.getElementById("cantidad");
-    const mat = MATERIALES.find(m => m.nombre === ib.value.trim());
+    const inputBusca = document.getElementById("buscador");
+    const inputCant = document.getElementById("cantidad");
+    const nombre = inputBusca.value.trim();
+    const cant = parseInt(inputCant.value);
 
-    if (mat && parseInt(ic.value) > 0) {
-        materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: ic.value });
+    const matEncontrado = MATERIALES.find(m => m.nombre === nombre);
+
+    if (matEncontrado && cant > 0) {
+        materialesCargados.push({
+            codigo: matEncontrado.codigo,
+            descripcion: matEncontrado.nombre,
+            cantidad: cant
+        });
         renderLista();
-        ib.value = ""; ic.value = "";
+        // Reset
+        inputBusca.value = "";
+        inputCant.value = "";
+        inputBusca.focus();
     } else {
-        alert("Seleccione material y cantidad");
+        alert("Selección o cantidad no válida");
     }
 }
 
 function renderLista() {
     const ui = document.getElementById("lista");
     ui.innerHTML = "";
-    document.getElementById("btnSiguiente").style.display = materialesCargados.length > 0 ? "block" : "none";
+    
+    // Mostramos botón siguiente solo si hay materiales
+    const btnSig = document.getElementById("btnSiguiente");
+    btnSig.style.display = materialesCargados.length > 0 ? "block" : "none";
+
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
-        li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
-                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="width:auto; background:#dc3545; padding:5px 12px; margin:0;">🗑️</button>`;
+        li.innerHTML = `
+            <div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
+            <button onclick="materialesCargados.splice(${i},1);renderLista();" 
+                    style="background:red; color:white; border:none; border-radius:5px; padding:5px 10px;">X</button>
+        `;
         ui.appendChild(li);
     });
 }
 
 function irAFirma() {
-    if (!document.getElementById("tecnico").value) return alert("Seleccione el técnico");
+    const tecnico = document.getElementById("tecnico").value;
+    if (!tecnico) {
+        alert("Por favor, selecciona un técnico.");
+        return;
+    }
     mostrarPantalla("pantallaFirma");
-    // El canvas necesita un pequeño tiempo para calcular su tamaño una vez la pantalla es visible
-    if (typeof ajustarCanvas === "function") setTimeout(ajustarCanvas, 200);
 }
 
 function finalizar() {
-    const firma = obtenerFirmaBase64();
-    if (firma.length < 2000) return alert("Firme el registro");
+    const firmaData = obtenerFirmaBase64();
+    
+    // Validación de firma (si está vacía suele devolver un string corto)
+    if (firmaData.length < 2000) {
+        alert("La firma es obligatoria para finalizar el registro.");
+        return;
+    }
+
+    // Aquí ya estamos en la instancia final
     mostrarPantalla("pantallaComprobante");
 }
