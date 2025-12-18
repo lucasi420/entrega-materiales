@@ -5,10 +5,10 @@ let materialesCargados = [];
 let tecnicoSeleccionado = "";
 
 /*********
- * INICIALIZACIÓN Y ANIMACIÓN SPLASH
+ * INICIALIZACIÓN Y CONTROL DEL SPLASH (PRESENTACIÓN)
  *********/
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Cargar lista de técnicos desde tecnicos.js
+    // 1. Cargar Técnicos desde tecnicos.js
     const selectTecnicos = document.getElementById("tecnico");
     if (typeof TECNICOS !== "undefined" && selectTecnicos) {
         TECNICOS.sort().forEach(t => {
@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. Cargar sugerencias de materiales desde materiales.js
+    // 2. Cargar Materiales desde materiales.js
     const datalist = document.getElementById("listaSugerencias");
     if (typeof MATERIALES !== "undefined" && datalist) {
         MATERIALES.forEach(item => {
@@ -29,58 +29,57 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 3. Sincronización de Splash con el efecto Zoom del CSS
-    // La animación en CSS dura 2.5s. Ocultamos el div justo antes del final.
+    // 3. Temporizador para ocultar el Splash sincronizado con la animación CSS (3s)
+    // A los 2.8s iniciamos el fundido para que el zoom "atraviese" la pantalla suavemente
     setTimeout(() => {
         const splash = document.getElementById("splash");
         if (splash) {
-            splash.style.opacity = "0"; // Inicia desvanecimiento de luz
+            splash.style.opacity = "0";
             setTimeout(() => {
                 splash.style.display = "none";
                 mostrarPantalla("pantallaDatos");
-            }, 600); 
+            }, 800); 
         }
-    }, 2400); 
+    }, 2800); 
 });
 
 /*********
- * SISTEMA DE NAVEGACIÓN
+ * NAVEGACIÓN ENTRE PANTALLAS
  *********/
 function mostrarPantalla(id) {
     document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
     const destino = document.getElementById(id);
     if (destino) {
         destino.classList.add("activa");
-        // Ajustar canvas si entramos a la firma
+        // Ajuste automático del canvas si entramos a la firma
         if(id === "pantallaFirma" && typeof ajustarCanvas === "function") {
             setTimeout(ajustarCanvas, 100);
         }
     }
 }
 
+// Salto automático al elegir técnico
 function irMateriales() {
-    const select = document.getElementById("tecnico");
-    tecnicoSeleccionado = select.value;
+    tecnicoSeleccionado = document.getElementById("tecnico").value;
     if (tecnicoSeleccionado !== "") {
         mostrarPantalla("pantallaMateriales");
     }
 }
 
 /*********
- * GESTIÓN DE MATERIALES
+ * CARGA DE MATERIALES
  *********/
 function agregarMaterial() {
     const inputBusca = document.getElementById("buscador");
     const inputCant = document.getElementById("cantidad");
-    
     const nombreMaterial = inputBusca.value.trim();
     const cantVal = parseInt(inputCant.value);
 
-    // Validación contra el archivo materiales.js
+    // Buscamos el material en el archivo materiales.js
     const materialEncontrado = MATERIALES.find(m => m.nombre === nombreMaterial);
 
     if (!materialEncontrado) {
-        alert("Por favor, seleccione un material de la lista desplegable.");
+        alert("Por favor, seleccione un material válido de la lista.");
         return;
     }
 
@@ -89,7 +88,7 @@ function agregarMaterial() {
         return;
     }
 
-    // Guardar objeto con código y descripción
+    // Guardamos con código incluido
     materialesCargados.push({
         codigo: materialEncontrado.codigo,
         descripcion: materialEncontrado.nombre,
@@ -98,7 +97,7 @@ function agregarMaterial() {
 
     renderLista();
     
-    // Reset de inputs
+    // Reset e foco
     inputBusca.value = "";
     inputCant.value = "";
     inputBusca.focus();
@@ -109,7 +108,7 @@ function renderLista() {
     const btnFirma = document.getElementById("btnIrAFirma");
     listaUI.innerHTML = "";
 
-    // El botón "Firmar" solo aparece si hay materiales
+    // Mostramos el botón "Firmar" solo si hay algo en la lista
     if (btnFirma) {
         btnFirma.style.display = materialesCargados.length > 0 ? "block" : "none";
     }
@@ -118,13 +117,13 @@ function renderLista() {
         const li = document.createElement("li");
         li.innerHTML = `
             <div style="flex-grow: 1;">
-                <small style="color: #888; font-size: 10px;">${m.codigo}</small><br>
+                <small style="color: #666; font-size: 10px;">${m.codigo}</small><br>
                 <strong>${m.descripcion}</strong><br>
                 <span>Cant: ${m.cantidad}</span>
             </div>
             <div class="acciones-item">
-                <button class="btn-edit" onclick="editarMaterial(${index})" title="Editar">✏️</button>
-                <button class="btn-del" onclick="eliminarMaterial(${index})" title="Eliminar">🗑️</button>
+                <button class="btn-edit" onclick="editarMaterial(${index})">✏️</button>
+                <button class="btn-del" onclick="eliminarMaterial(${index})">🗑️</button>
             </div>
         `;
         listaUI.appendChild(li);
@@ -132,13 +131,15 @@ function renderLista() {
 }
 
 function eliminarMaterial(index) {
-    materialesCargados.splice(index, 1);
-    renderLista();
+    if(confirm("¿Eliminar este material?")) {
+        materialesCargados.splice(index, 1);
+        renderLista();
+    }
 }
 
 function editarMaterial(index) {
     const m = materialesCargados[index];
-    const nuevaCant = prompt(`Nueva cantidad para:\n${m.descripcion}`, m.cantidad);
+    const nuevaCant = prompt(`Editar cantidad para:\n${m.descripcion}`, m.cantidad);
     
     if (nuevaCant !== null) {
         const num = parseInt(nuevaCant);
@@ -154,37 +155,37 @@ function irFirma() {
 }
 
 /*********
- * FINALIZACIÓN Y COMPROBANTE
+ * COMPROBANTE FINAL
  *********/
 function finalizar() {
     const firma = obtenerFirmaBase64();
     if (!firma || firma.length < 2000) {
-        alert("Se requiere la firma del técnico.");
+        alert("El técnico debe firmar antes de finalizar.");
         return;
     }
 
     const compDiv = document.getElementById("comprobante");
     let itemsHTML = materialesCargados.map(m => `
-        <li style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 0.9rem;">
-            <small style="color: #999;">${m.codigo}</small><br>
+        <li style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+            <small>${m.codigo}</small><br>
             ${m.descripcion} - <strong>x${m.cantidad}</strong>
         </li>
     `).join('');
 
     compDiv.innerHTML = `
-        <div style="padding: 10px; border: 2px solid #eee; border-radius: 10px;">
-            <h3 style="color: #0b3c5d; text-align:center; margin-top: 0;">CARGA REGISTRADA</h3>
-            <p style="font-size: 0.9rem;"><strong>Técnico:</strong> ${tecnicoSeleccionado}</p>
-            <p style="font-size: 0.9rem;"><strong>Fecha:</strong> ${new Date().toLocaleString()}</p>
+        <div style="padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+            <h3 style="color: #0b3c5d; text-align:center;">CARGA REGISTRADA</h3>
+            <p><strong>Técnico:</strong> ${tecnicoSeleccionado}</p>
+            <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
             <hr>
             <ul style="list-style: none; padding: 0;">${itemsHTML}</ul>
             <hr>
-            <p style="font-size: 0.8rem; color: #666;">Firma de conformidad:</p>
-            <img src="${firma}" style="width: 100%; border: 1px solid #ccc; background: #fff; border-radius: 5px;">
+            <p>Firma del técnico:</p>
+            <img src="${firma}" style="width: 100%; border: 1px solid #ccc; background: #fff;">
             
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button onclick="window.print()" style="background: #6c757d; margin: 0; flex: 1;">PDF</button>
-                <button onclick="location.reload()" style="background: #28a745; margin: 0; flex: 1;">Nueva</button>
+                <button onclick="location.reload()" style="background: #28a745; margin: 0; flex: 1;">NUEVO</button>
             </div>
         </div>
     `;
