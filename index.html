@@ -20,26 +20,32 @@
     <section id="pantallaDatos" class="pantalla">
       <h2>Registro de Técnico</h2>
       <label for="tecnico">Seleccione su nombre:</label>
-      <select id="tecnico">
-        <option value="">-- Seleccionar --</option>
+      <select id="tecnico" onchange="irMateriales()">
+        <option value="">-- Seleccionar Técnico --</option>
         <option value="Juan Perez">Juan Perez</option>
         <option value="Carlos Gomez">Carlos Gomez</option>
         <option value="Martin Lopez">Martin Lopez</option>
       </select>
-      <button onclick="irMateriales()">Siguiente ➔</button>
     </section>
 
     <section id="pantallaMateriales" class="pantalla">
       <h2>Carga de Materiales</h2>
       
       <div class="formulario-carga">
-        <input type="text" id="buscador" placeholder="Nombre del material (ej: Cable Coaxial)" autocomplete="off">
-        <input type="number" id="cantidad" placeholder="Cantidad" min="1">
+        <label>Material:</label>
+        <input type="text" id="buscador" list="listaSugerencias" placeholder="Escriba para buscar..." autocomplete="off">
+        
+        <datalist id="listaSugerencias">
+          </datalist>
+
+        <label>Cantidad:</label>
+        <input type="number" id="cantidad" placeholder="0" min="1">
+        
         <button onclick="agregarMaterial()" style="background: #28a745;">➕ Agregar a la lista</button>
       </div>
 
-      <div class="lista-contenedor">
-        <h3>Materiales a retirar:</h3>
+      <div class="lista-contenedor" style="margin-top: 20px;">
+        <h3>Materiales cargados:</h3>
         <ul id="lista">
           </ul>
       </div>
@@ -49,13 +55,13 @@
 
     <section id="pantallaFirma" class="pantalla">
       <h2>Firma de Conformidad</h2>
-      <p style="text-align: center; color: #666;">Firme dentro del recuadro:</p>
+      <p style="text-align: center; color: #666; font-size: 0.9rem;">El técnico debe firmar en el recuadro:</p>
       
       <canvas id="canvasFirma"></canvas>
 
-      <div class="firma-botones">
+      <div class="firma-botones" style="display: flex; gap: 10px;">
         <button onclick="limpiarFirma()" style="background: #6c757d;">Limpiar</button>
-        <button onclick="finalizar()">Finalizar y Enviar</button>
+        <button onclick="finalizar()">Finalizar Carga</button>
       </div>
     </section>
 
@@ -66,6 +72,7 @@
 
   </main>
 
+  <script src="./js/materiales.js"></script>
   <script src="./js/firma.js"></script>
   <script src="./js/app.js"></script>
 
