@@ -13,41 +13,45 @@
   </div>
 
   <main id="app">
-    
-    <section id="pantallaDatos" class="pantalla">
-      <h2>Registro de Técnico</h2>
-      <label>Seleccione su nombre:</label>
-      <select id="tecnico" onchange="irMateriales()">
-        <option value="">-- Seleccionar --</option>
+    <section id="pantallaPrincipal" class="pantalla">
+      <h2>Carga de Datos</h2>
+      <label>Técnico:</label>
+      <select id="tecnico">
+        <option value="">-- Seleccionar Técnico --</option>
       </select>
-    </section>
 
-    <section id="pantallaMateriales" class="pantalla">
-      <h2>Carga de Materiales</h2>
-      <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material..." autocomplete="off">
+      <hr style="margin: 20px 0; opacity: 0.2;">
+
+      <label>Material:</label>
+      <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material...">
       <datalist id="listaSugerencias"></datalist>
       <input type="number" id="cantidad" placeholder="Cantidad">
-      <button onclick="agregarMaterial()" style="background: #28a745;">➕ Agregar Item</button>
+      <button onclick="agregarMaterial()" style="background: #17a2b8;">➕ Agregar a Lista</button>
       
       <ul id="lista" style="list-style:none; margin-top:20px;"></ul>
       
-      <button id="btnSiguienteFirma" onclick="irFirma()" style="background: #0b3c5d; display: none; margin-top: 20px;">Siguiente (Firma) ➔</button>
+      <button id="btnSiguiente" onclick="irAFirma()" style="background: #0b3c5d; display: none; margin-top: 20px;">Siguiente ➔</button>
     </section>
 
     <section id="pantallaFirma" class="pantalla">
-      <h2>Finalizar Registro</h2>
-      <p style="text-align:center; color: #666;">Firma de conformidad:</p>
+      <h2>Firma de Conformidad</h2>
+      <p style="text-align: center;">Firme en el recuadro para validar:</p>
+      
       <canvas id="canvasFirma"></canvas>
-      <div style="display:flex; gap:10px;">
-        <button onclick="limpiarFirma()" style="background:#6c757d;">Limpiar</button>
-        <button onclick="finalizar()" style="background:#28a745;">Enviar Todo</button>
-      </div>
+
+      <button onclick="finalizar()" style="background: #28a745; font-size: 20px;">ENVIAR REGISTRO</button>
+      <button onclick="limpiarFirma()" style="background: #6c757d; margin-top: 10px;">Borrar Firma</button>
+      <button onclick="mostrarPantalla('pantallaPrincipal')" style="background:none; color:#666; text-decoration:underline;">Volver a Materiales</button>
     </section>
 
     <section id="pantallaComprobante" class="pantalla">
-      <div id="comprobante"></div>
+      <div style="text-align: center;">
+        <h1 style="font-size: 80px; margin-bottom: 20px;">🎉</h1>
+        <h1 style="font-size: 3rem; font-weight: 900;">CARGA EXITOSA</h1>
+        <p style="font-size: 1.2rem; margin: 20px 0;">El registro se ha enviado correctamente.</p>
+        <button onclick="location.reload()" style="background: white; color: #28a745; width: auto; padding: 15px 40px;">Hacer otra carga</button>
+      </div>
     </section>
-
   </main>
 
   <script src="./js/tecnicos.js"></script>
