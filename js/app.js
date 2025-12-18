@@ -2,15 +2,37 @@ let materialesCargados = [];
 let tecnicoSeleccionado = "";
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Cargar datos iniciales
+    // 1. Cargar bases de datos
+    cargarDatosIniciales();
+
+    // 2. Lógica del Splash cinematográfico
+    // El tiempo debe ser exactamente el clímax de la animación CSS (3.3s)
+    setTimeout(() => {
+        const splash = document.getElementById("splash");
+        
+        // Habilitamos el scroll para la app
+        document.body.style.overflow = "auto";
+        
+        if (splash) {
+            splash.style.opacity = "0"; // Inicia desvanecimiento de luz
+            
+            // Revelamos la primera pantalla real
+            mostrarPantalla("pantallaDatos");
+
+            // Removemos el splash por completo después del fade
+            setTimeout(() => { splash.style.display = "none"; }, 800);
+        }
+    }, 3300); 
+});
+
+function cargarDatosIniciales() {
     if (typeof TECNICOS !== "undefined") {
-        const st = document.getElementById("tecnico");
+        const select = document.getElementById("tecnico");
         TECNICOS.sort().forEach(t => {
             let o = document.createElement("option"); o.value = t; o.textContent = t;
-            st.appendChild(o);
+            select.appendChild(o);
         });
     }
-
     if (typeof MATERIALES !== "undefined") {
         const dl = document.getElementById("listaSugerencias");
         MATERIALES.forEach(m => {
@@ -18,23 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
             dl.appendChild(o);
         });
     }
-
-    // 2. Control del Splash
-    setTimeout(() => {
-        const splash = document.getElementById("splash");
-        document.body.style.overflow = "auto";
-        if (splash) {
-            splash.style.opacity = "0";
-            mostrarPantalla("pantallaDatos");
-            setTimeout(() => { splash.style.display = "none"; }, 800);
-        }
-    }, 3300); 
-});
+}
 
 function mostrarPantalla(id) {
     document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
-    document.getElementById(id).classList.add("activa");
-    window.scrollTo(0,0);
+    const pantalla = document.getElementById(id);
+    if(pantalla) pantalla.classList.add("activa");
 }
 
 function irMateriales() {
@@ -48,62 +59,43 @@ function agregarMaterial() {
     const mat = MATERIALES.find(m => m.nombre === ib.value.trim());
 
     if (mat && parseInt(ic.value) > 0) {
-        materialesCargados.push({
-            codigo: mat.codigo,
-            descripcion: mat.nombre,
-            cantidad: ic.value
-        });
+        materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: ic.value });
         renderLista();
         ib.value = ""; ic.value = ""; ib.focus();
-    } else {
-        alert("Seleccione un material y cantidad válida.");
     }
 }
 
 function renderLista() {
     const ui = document.getElementById("lista");
-    const btnSiguiente = document.getElementById("btnSiguienteFirma");
     ui.innerHTML = "";
-    
-    // El botón "Siguiente" solo aparece si hay materiales
-    btnSiguiente.style.display = materialesCargados.length > 0 ? "block" : "none";
+    document.getElementById("btnSiguienteFirma").style.display = materialesCargados.length > 0 ? "block" : "none";
 
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
-        li.innerHTML = `
-            <div><strong>${m.descripcion}</strong><br><small>${m.codigo} - Cant: ${m.cantidad}</small></div>
-            <button onclick="materialesCargados.splice(${i},1);renderLista();" style="width:auto; background:#dc3545; padding:5px 10px;">🗑️</button>
-        `;
+        li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo}</small> - x${m.cantidad}</div>
+                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="width:auto; background:red; padding:5px 10px;">🗑️</button>`;
         ui.appendChild(li);
     });
 }
 
 function irFirma() {
     mostrarPantalla("pantallaFirma");
-    // Inicializar canvas después de mostrar pantalla
-    if (typeof ajustarCanvas === "function") {
-        setTimeout(ajustarCanvas, 200);
-    }
+    if (typeof ajustarCanvas === "function") setTimeout(ajustarCanvas, 200);
 }
 
 function finalizar() {
     const firma = obtenerFirmaBase64();
-    if (firma.length < 2000) {
-        alert("Por favor, firme antes de enviar.");
-        return;
-    }
+    if (firma.length < 2000) return alert("Firme el registro.");
 
-    const comp = document.getElementById("comprobante");
-    comp.innerHTML = `
+    document.getElementById("comprobante").innerHTML = `
         <div style="text-align:center;">
-            <div style="font-size: 50px;">✅</div>
-            <h2 style="color:#28a745;">CARGA EXITOSA</h2>
-            <p>El registro de <strong>${tecnicoSeleccionado}</strong> ha sido guardado.</p>
-            <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+            <h1 style="font-size: 50px;">✅</h1>
+            <h2 style="color:#28a745;">CARGA REGISTRADA</h2>
+            <p>Técnico: <strong>${tecnicoSeleccionado}</strong></p>
+            <hr style="margin:20px 0;">
             <img src="${firma}" style="width:100%; border:1px solid #ddd; border-radius:10px;">
-            <button onclick="location.reload()" style="margin-top:20px; background:#0b3c5d;">Hacer otra carga</button>
-            <button onclick="window.print()" style="background:#6c757d; margin-top:10px;">Imprimir Comprobante</button>
-        </div>
-    `;
+            <button onclick="location.reload()" style="margin-top:20px; background:#0b3c5d;">Nueva Carga</button>
+            <button onclick="window.print()" style="margin-top:10px; background:#666;">Guardar PDF</button>
+        </div>`;
     mostrarPantalla("pantallaComprobante");
 }
