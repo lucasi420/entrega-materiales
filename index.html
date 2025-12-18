@@ -1,63 +1,64 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Control Materiales Ushuaia</title>
-  <link rel="stylesheet" href="./css/styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Control Materiales Ushuaia</title>
+    
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/splash.css">
+    <link rel="stylesheet" href="css/registro.css">
+    <link rel="stylesheet" href="css/firma.css">
+    <link rel="stylesheet" href="css/exito.css">
 </head>
 <body>
 
-  <div id="splash">
-    <h1 class="texto-presentacion">Control Materiales<br>Ushuaia</h1>
-  </div>
+    <div id="splash" class="pantalla activa">
+        <h1 class="texto-presentacion">Control Materiales<br>Ushuaia</h1>
+    </div>
 
-  <main id="app">
-    <section id="pantallaPrincipal" class="pantalla">
-      <h2>Registro de Carga</h2>
-      <label>Técnico:</label>
-      <select id="tecnico">
-        <option value="">-- Seleccionar Técnico --</option>
-      </select>
+    <main id="app">
+        
+        <section id="pantallaPrincipal" class="pantalla">
+            <h2>Carga de Datos</h2>
+            <label>Técnico:</label>
+            <select id="tecnico">
+                <option value="">-- Seleccionar Técnico --</option>
+            </select>
 
-      <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 10px;">
-        <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material...">
-        <datalist id="listaSugerencias"></datalist>
-        <input type="number" id="cantidad" placeholder="Cantidad">
-        <button onclick="agregarMaterial()" style="background: #17a2b8;">➕ Agregar Item</button>
-      </div>
-      
-      <div style="flex-grow: 1; overflow-y: auto; margin-top: 15px;">
-        <ul id="lista" style="list-style:none;"></ul>
-      </div>
-      
-      <button id="btnSiguiente" onclick="irAFirma()" style="background: #0b3c5d; display: none;">SIGUIENTE ➔</button>
-    </section>
+            <div style="margin-top: 15px;">
+                <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material...">
+                <datalist id="listaSugerencias"></datalist>
+                <input type="number" id="cantidad" placeholder="Cantidad">
+                <button class="btn-agregar" onclick="agregarMaterial()">➕ Agregar a Lista</button>
+            </div>
+            
+            <ul id="lista"></ul>
+            
+            <button id="btnSiguiente" class="btn-siguiente" onclick="irAFirma()" style="display:none;">SIGUIENTE (FIRMA) ➔</button>
+        </section>
 
-    <section id="pantallaFirma" class="pantalla">
-      <h2>Firma Obligatoria</h2>
-      <p style="text-align: center; color: #555;">Use su dedo en el recuadro azul:</p>
-      
-      <canvas id="canvasFirma"></canvas>
+        <section id="pantallaFirma" class="pantalla">
+            <h2>Firma de Conformidad</h2>
+            <p style="text-align: center; margin-bottom: 10px; color: #555;">Use su dedo en el recuadro:</p>
+            <canvas id="canvasFirma"></canvas>
+            <button class="btn-enviar" onclick="finalizar()">ENVIAR REGISTRO</button>
+            <button onclick="limpiarFirma()" style="background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; margin-top: 10px;">Limpiar</button>
+            <button onclick="mostrarPantalla('pantallaPrincipal')" style="background:none; color:#0b3c5d; text-decoration:underline; margin-top: 20px; border:none;">⬅ Volver a materiales</button>
+        </section>
 
-      <button onclick="finalizar()" style="background: #28a745; font-size: 1.2rem; letter-spacing: 1px;">ENVIAR REGISTRO</button>
-      <button onclick="limpiarFirma()" style="background: #6c757d; margin-top: 10px; padding: 10px;">Limpiar Recuadro</button>
-      <button onclick="mostrarPantalla('pantallaPrincipal')" style="background:none; color:#0b3c5d; text-decoration:underline; font-size: 14px;">⬅ Volver y editar materiales</button>
-    </section>
+        <section id="pantallaComprobante" class="pantalla">
+            <div class="check-grande">✅</div>
+            <h1>CARGA EXITOSA</h1>
+            <p style="margin-top: 10px;">El registro se guardó correctamente.</p>
+            <button class="btn-nuevo" onclick="location.reload()">NUEVA CARGA</button>
+        </section>
 
-    <section id="pantallaComprobante" class="pantalla">
-      <div style="text-align: center;">
-        <div style="font-size: 100px;">✅</div>
-        <h1 style="font-size: 2.5rem; font-weight: 900; margin: 10px 0;">CARGA EXITOSA</h1>
-        <p style="font-size: 1.1rem; opacity: 0.9;">Datos guardados correctamente</p>
-        <button onclick="location.reload()" style="background: white; color: #28a745; width: auto; padding: 15px 50px; margin-top: 40px; border-radius: 50px;">NUEVA CARGA</button>
-      </div>
-    </section>
-  </main>
+    </main>
 
-  <script src="./js/tecnicos.js"></script>
-  <script src="./js/materiales.js"></script>
-  <script src="./js/firma.js"></script>
-  <script src="./js/app.js"></script>
+    <script src="js/tecnicos.js"></script>
+    <script src="js/materiales.js"></script>
+    <script src="js/firma.js"></script>
+    <script src="js/app.js"></script>
 </body>
 </html>
