@@ -1,0 +1,13 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { 
+    width: 100vw; height: 100vh; 
+    overflow: hidden; /* Prohibido deslizar */
+    background: #0b3c5d; 
+    font-family: sans-serif;
+}
+.pantalla { 
+    display: none; 
+    width: 100vw; height: 100vh; 
+    position: absolute; top: 0; left: 0; 
+}
+.pantalla.activa { display: flex; flex-direction: column; }
