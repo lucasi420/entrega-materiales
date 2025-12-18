@@ -1,25 +1,22 @@
-/* RESET TOTAL */
+/* RESET */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   font-family: 'Segoe UI', sans-serif;
   background: #f2f4f7;
-  overflow: hidden; /* Evita scroll durante la presentación */
+  overflow: hidden; /* Se habilita al terminar el splash */
 }
 
-/* CAPA DE PRESENTACIÓN (SPLASH) */
+/* EFECTO PRESENTACIÓN */
 #splash {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: #0b3c5d; /* Azul Ushuaia */
+  inset: 0;
+  background-color: #0b3c5d;
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
-  transition: all 0.8s ease-in-out;
+  z-index: 99999; /* Por encima de todo */
+  transition: opacity 0.8s ease;
 }
 
 .texto-presentacion {
@@ -29,56 +26,60 @@ body {
   text-transform: uppercase;
   letter-spacing: 8px;
   font-weight: 900;
-  opacity: 0;
-  /* Animación: dura 3.5s */
-  animation: presentacionCine 3.5s ease-in-out forwards;
+  animation: introCine 3.5s cubic-bezier(0.7, 0, 0.3, 1) forwards;
 }
 
-@keyframes presentacionCine {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-    filter: blur(20px);
-  }
-  20% {
-    transform: scale(1);
-    opacity: 1;
-    filter: blur(0);
-  }
-  70% {
-    transform: scale(1.1);
-    opacity: 1;
-    filter: brightness(1);
-  }
-  100% {
-    transform: scale(100); /* El texto crece tanto que sales por el centro de las letras */
-    opacity: 0;
-    filter: brightness(5);
-  }
+@keyframes introCine {
+  0% { transform: scale(0.2); opacity: 0; filter: blur(20px); }
+  20% { transform: scale(1); opacity: 1; filter: blur(0); }
+  75% { transform: scale(1.1); opacity: 1; filter: brightness(1); }
+  100% { transform: scale(100); opacity: 0; filter: brightness(10); }
 }
 
-/* PANTALLAS (OCULTAS) */
+/* PANTALLAS */
 .pantalla {
-  display: none; 
+  display: none;
   max-width: 450px;
-  margin: 50px auto;
+  margin: 40px auto;
   padding: 30px;
   background: white;
   border-radius: 20px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  flex-direction: column;
 }
 
 .pantalla.activa {
-  display: block;
-  animation: fadeUp 1s ease forwards;
+  display: flex;
+  animation: fadeUp 0.8s ease forwards;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(50px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ESTILOS DE INTERFAZ */
-select, input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; }
-button { width: 100%; padding: 15px; background: #1d70b8; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-#canvasFirma { width: 100%; height: 250px; border: 2px dashed #ccc; border-radius: 15px; margin: 15px 0; touch-action: none; }
+/* COMPONENTES */
+h2 { color: #0b3c5d; text-align: center; margin-bottom: 20px; }
+select, input { width: 100%; padding: 14px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; }
+button { width: 100%; padding: 15px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; transition: 0.2s; }
+button:active { transform: scale(0.97); }
+
+#canvasFirma {
+  width: 100%;
+  height: 250px;
+  border: 2px dashed #bbb;
+  border-radius: 15px;
+  background: #fff;
+  touch-action: none;
+  margin-bottom: 20px;
+}
+
+#lista li {
+  background: #f8f9fa;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  border-left: 5px solid #0b3c5d;
+}
