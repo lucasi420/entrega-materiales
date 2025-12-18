@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control Materiales Ushuaia</title>
-  
   <link rel="stylesheet" href="./css/styles.css">
 </head>
 <body>
@@ -22,10 +21,7 @@
       <label for="tecnico">Seleccione su nombre:</label>
       <select id="tecnico" onchange="irMateriales()">
         <option value="">-- Seleccionar Técnico --</option>
-        <option value="Juan Perez">Juan Perez</option>
-        <option value="Carlos Gomez">Carlos Gomez</option>
-        <option value="Martin Lopez">Martin Lopez</option>
-      </select>
+        </select>
     </section>
 
     <section id="pantallaMateriales" class="pantalla">
@@ -34,9 +30,7 @@
       <div class="formulario-carga">
         <label>Material:</label>
         <input type="text" id="buscador" list="listaSugerencias" placeholder="Escriba para buscar..." autocomplete="off">
-        
-        <datalist id="listaSugerencias">
-          </datalist>
+        <datalist id="listaSugerencias"></datalist>
 
         <label>Cantidad:</label>
         <input type="number" id="cantidad" placeholder="0" min="1">
@@ -46,8 +40,7 @@
 
       <div class="lista-contenedor" style="margin-top: 20px;">
         <h3>Materiales cargados:</h3>
-        <ul id="lista">
-          </ul>
+        <ul id="lista"></ul>
       </div>
 
       <button onclick="irFirma()">Confirmar Materiales ➔</button>
@@ -55,7 +48,7 @@
 
     <section id="pantallaFirma" class="pantalla">
       <h2>Firma de Conformidad</h2>
-      <p style="text-align: center; color: #666; font-size: 0.9rem;">El técnico debe firmar en el recuadro:</p>
+      <p style="text-align: center; color: #666; font-size: 0.9rem;">Firme dentro del recuadro:</p>
       
       <canvas id="canvasFirma"></canvas>
 
@@ -66,12 +59,12 @@
     </section>
 
     <section id="pantallaComprobante" class="pantalla">
-      <div id="comprobante">
-        </div>
+      <div id="comprobante"></div>
     </section>
 
   </main>
 
+  <script src="./js/tecnicos.js"></script>
   <script src="./js/materiales.js"></script>
   <script src="./js/firma.js"></script>
   <script src="./js/app.js"></script>
