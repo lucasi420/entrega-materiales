@@ -1,0 +1,6 @@
+#pantallaComprobante { 
+    background: #28a745; color: white; 
+    justify-content: center; align-items: center; text-align: center; 
+}
+.check-grande { font-size: 120px; margin-bottom: 20px; }
+.btn-nuevo { background: white; color: #28a745; padding: 15px 40px; border-radius: 50px; font-weight: bold; border: none; margin-top: 30px; }
