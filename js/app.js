@@ -2,56 +2,42 @@ let materialesCargados = [];
 let tecnicoSeleccionado = "";
 
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Cargar Técnicos y Materiales desde sus archivos .js
-    prepararListas();
-
-    // 2. Control de Presentación
-    // A los 2.8s (justo cuando el zoom está por terminar)
-    setTimeout(() => {
-        const splash = document.getElementById("splash");
-        if (splash) {
-            splash.style.opacity = "0"; // Inicia desvanecimiento de luz
-            
-            // Mostramos la primera pantalla (Técnicos)
-            mostrarPantalla("pantallaDatos");
-
-            // Quitamos el splash del DOM después del fundido
-            setTimeout(() => {
-                splash.style.display = "none";
-            }, 800);
-        }
-    }, 2800); 
-});
-
-function prepararListas() {
+    // Cargar datos
     const st = document.getElementById("tecnico");
-    if (typeof TECNICOS !== "undefined" && st) {
+    if (typeof TECNICOS !== "undefined") {
         TECNICOS.sort().forEach(t => {
-            let o = document.createElement("option");
-            o.value = t; o.textContent = t;
+            let o = document.createElement("option"); o.value = t; o.textContent = t;
             st.appendChild(o);
         });
     }
 
     const dl = document.getElementById("listaSugerencias");
-    if (typeof MATERIALES !== "undefined" && dl) {
+    if (typeof MATERIALES !== "undefined") {
         MATERIALES.forEach(m => {
-            let o = document.createElement("option");
-            o.value = m.nombre;
+            let o = document.createElement("option"); o.value = m.nombre;
             dl.appendChild(o);
         });
     }
-}
+
+    // CONTROL DE LA PRESENTACIÓN
+    setTimeout(() => {
+        const splash = document.getElementById("splash");
+        // Quitamos el bloqueo de scroll
+        document.body.style.overflow = "auto";
+        
+        if (splash) {
+            splash.style.opacity = "0";
+            // Activamos la primera pantalla justo en el flash de luz
+            mostrarPantalla("pantallaDatos");
+            
+            setTimeout(() => { splash.style.display = "none"; }, 1000);
+        }
+    }, 3200); // Espera el final de la explosión del texto
+});
 
 function mostrarPantalla(id) {
     document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
-    const destino = document.getElementById(id);
-    if (destino) {
-        destino.classList.add("activa");
-        if(id === "pantallaFirma" && typeof ajustarCanvas === "function") {
-            setTimeout(ajustarCanvas, 100);
-        }
-    }
+    document.getElementById(id).classList.add("activa");
 }
 
 function irMateriales() {
@@ -64,61 +50,29 @@ function agregarMaterial() {
     const ic = document.getElementById("cantidad");
     const mat = MATERIALES.find(m => m.nombre === ib.value.trim());
 
-    if (mat && parseInt(ic.value) > 0) {
-        materialesCargados.push({
-            codigo: mat.codigo,
-            descripcion: mat.nombre,
-            cantidad: parseInt(ic.value)
-        });
+    if (mat && ic.value > 0) {
+        materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: ic.value });
         renderLista();
-        ib.value = ""; ic.value = ""; ib.focus();
-    } else {
-        alert("Selección inválida.");
+        ib.value = ""; ic.value = "";
     }
 }
 
 function renderLista() {
     const ui = document.getElementById("lista");
-    const bf = document.getElementById("btnIrAFirma");
     ui.innerHTML = "";
-    if(bf) bf.style.display = materialesCargados.length > 0 ? "block" : "none";
-
+    document.getElementById("btnIrAFirma").style.display = materialesCargados.length > 0 ? "block" : "none";
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
-        li.innerHTML = `
-            <div><small>${m.codigo}</small><br><strong>${m.descripcion}</strong><br>Cant: ${m.cantidad}</div>
-            <div style="display:flex; gap:5px;">
-                <button onclick="editarMaterial(${i})" style="width:40px; background:#ffc107; color:black; padding:5px;">✏️</button>
-                <button onclick="eliminarMaterial(${i})" style="width:40px; background:#dc3545; color:white; padding:5px;">🗑️</button>
-            </div>`;
+        li.innerHTML = `<b>${m.descripcion}</b> (x${m.cantidad}) <button onclick="materialesCargados.splice(${i},1);renderLista();" style="width:auto; padding:5px; background:red; float:right;">X</button>`;
+        li.style.background = "#eee"; li.style.padding = "10px"; li.style.marginBottom = "5px";
         ui.appendChild(li);
     });
 }
 
-function eliminarMaterial(i) { materialesCargados.splice(i, 1); renderLista(); }
-
-function editarMaterial(i) {
-    const n = prompt("Cantidad:", materialesCargados[i].cantidad);
-    if(n) { materialesCargados[i].cantidad = parseInt(n); renderLista(); }
-}
-
-function irFirma() { mostrarPantalla("pantallaFirma"); }
+function irFirma() { mostrarPantalla("pantallaFirma"); if(typeof ajustarCanvas === "function") ajustarCanvas(); }
 
 function finalizar() {
     const firma = obtenerFirmaBase64();
-    if (firma.length < 2000) return alert("Firme para continuar");
-
-    document.getElementById("comprobante").innerHTML = `
-        <div style="text-align:center;">
-            <h3 style="color:#0b3c5d;">REGISTRO COMPLETADO</h3>
-            <p style="margin:10px 0;">Técnico: ${tecnicoSeleccionado}</p>
-            <hr><ul style="text-align:left; padding:15px; list-style:none;">
-                ${materialesCargados.map(m => `<li style="margin-bottom:5px;">• ${m.descripcion} (x${m.cantidad})</li>`).join('')}
-            </ul><hr>
-            <p>Firma:</p>
-            <img src="${firma}" style="width:100%; border:1px solid #ddd; border-radius:10px;">
-            <button onclick="window.print()" style="margin-top:20px; background:#666;">Guardar PDF</button>
-            <button onclick="location.reload()" style="background:#28a745;">Nueva Carga</button>
-        </div>`;
+    document.getElementById("comprobante").innerHTML = `<h3>Resumen</h3><p>Técnico: ${tecnicoSeleccionado}</p><img src="${firma}" style="width:100%"><button onclick="location.reload()">Nuevo</button>`;
     mostrarPantalla("pantallaComprobante");
 }
