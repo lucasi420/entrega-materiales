@@ -21,7 +21,7 @@
       <label for="tecnico">Seleccione su nombre:</label>
       <select id="tecnico" onchange="irMateriales()">
         <option value="">-- Seleccionar Técnico --</option>
-      </select>
+        </select>
     </section>
 
     <section id="pantallaMateriales" class="pantalla">
@@ -35,15 +35,16 @@
         <label>Cantidad:</label>
         <input type="number" id="cantidad" placeholder="0" min="1">
         
-        <div style="display: flex; gap: 10px; margin-top: 10px;">
-          <button onclick="agregarMaterial()" style="background: #28a745; margin: 0;">➕ Agregar</button>
-          <button id="btnIrAFirma" onclick="irFirma()" style="background: #0b3c5d; margin: 0; display: none;">Ir a Firmar ➔</button>
-        </div>
+        <button onclick="agregarMaterial()" style="background: #28a745;">➕ Agregar a la lista</button>
       </div>
 
       <div class="lista-contenedor" style="margin-top: 20px;">
-        <h3>Lista de carga:</h3>
+        <h3>Materiales cargados:</h3>
         <ul id="lista"></ul>
+      </div>
+
+      <div id="contenedorIrFirma" style="display: none; margin-top: 20px;">
+          <button onclick="irFirma()" style="background: #0b3c5d;">Proceder a la Firma ➔</button>
       </div>
     </section>
 
