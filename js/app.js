@@ -5,13 +5,12 @@ let materialesCargados = [];
 let tecnicoSeleccionado = "";
 
 /*********
- * INICIALIZACIÓN AL CARGAR LA PÁGINA
+ * INICIALIZACIÓN
  *********/
 document.addEventListener("DOMContentLoaded", () => {
-    // 1. Llenar Select de Técnicos desde tecnicos.js
+    // 1. Llenar Técnicos
     const selectTecnicos = document.getElementById("tecnico");
     if (typeof TECNICOS !== "undefined" && selectTecnicos) {
-        // Opcional: .sort() para ordenarlos alfabéticamente
         TECNICOS.sort().forEach(t => {
             let option = document.createElement("option");
             option.value = t;
@@ -20,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 2. Llenar Datalist de Materiales desde materiales.js
+    // 2. Llenar Materiales (Datalist)
     const datalist = document.getElementById("listaSugerencias");
     if (typeof MATERIALES !== "undefined" && datalist) {
         MATERIALES.forEach(item => {
@@ -30,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // 3. Manejo del Splash
+    // 3. Splash
     setTimeout(() => {
         const splash = document.getElementById("splash");
         if (splash) {
@@ -46,7 +45,13 @@ document.addEventListener("DOMContentLoaded", () => {
 function mostrarPantalla(id) {
     document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
     const destino = document.getElementById(id);
-    if (destino) destino.classList.add("activa");
+    if (destino) {
+        destino.classList.add("activa");
+        // Si vamos a la firma, asegurar que el canvas se ajuste al tamaño actual
+        if(id === "pantallaFirma" && typeof ajustarCanvas === "function") {
+            setTimeout(ajustarCanvas, 100);
+        }
+    }
 }
 
 function irMateriales() {
@@ -57,7 +62,7 @@ function irMateriales() {
 }
 
 /*********
- * LOGICA DE MATERIALES
+ * GESTIÓN DE MATERIALES
  *********/
 function agregarMaterial() {
     const inputBusca = document.getElementById("buscador");
@@ -66,20 +71,18 @@ function agregarMaterial() {
     const nombreMaterial = inputBusca.value.trim();
     const cantVal = parseInt(inputCant.value);
 
-    // Validar que el material exista en la lista de materiales.js
     const materialEncontrado = MATERIALES.find(m => m.nombre === nombreMaterial);
 
     if (!materialEncontrado) {
-        alert("Por favor, seleccione un material válido de la lista.");
+        alert("Seleccione un material válido de la lista.");
         return;
     }
 
     if (isNaN(cantVal) || cantVal <= 0) {
-        alert("Ingrese una cantidad válida mayor a cero.");
+        alert("Ingrese una cantidad válida.");
         return;
     }
 
-    // Agregar al array
     materialesCargados.push({
         codigo: materialEncontrado.codigo,
         descripcion: materialEncontrado.nombre,
@@ -88,7 +91,6 @@ function agregarMaterial() {
 
     renderLista();
     
-    // Resetear campos
     inputBusca.value = "";
     inputCant.value = "";
     inputBusca.focus();
@@ -96,7 +98,11 @@ function agregarMaterial() {
 
 function renderLista() {
     const listaUI = document.getElementById("lista");
+    const contenedorFirma = document.getElementById("contenedorIrFirma");
     listaUI.innerHTML = "";
+
+    // Mostrar botón de firma solo si hay items
+    contenedorFirma.style.display = materialesCargados.length > 0 ? "block" : "none";
 
     materialesCargados.forEach((m, index) => {
         const li = document.createElement("li");
@@ -116,10 +122,8 @@ function renderLista() {
 }
 
 function eliminarMaterial(index) {
-    if(confirm("¿Desea eliminar este material de la lista?")) {
-        materialesCargados.splice(index, 1);
-        renderLista();
-    }
+    materialesCargados.splice(index, 1);
+    renderLista();
 }
 
 function editarMaterial(index) {
@@ -131,17 +135,11 @@ function editarMaterial(index) {
         if (!isNaN(num) && num > 0) {
             materialesCargados[index].cantidad = num;
             renderLista();
-        } else {
-            alert("Cantidad no válida.");
         }
     }
 }
 
 function irFirma() {
-    if (materialesCargados.length === 0) {
-        alert("Cargue al menos un material antes de continuar.");
-        return;
-    }
     mostrarPantalla("pantallaFirma");
 }
 
@@ -149,18 +147,15 @@ function irFirma() {
  * FINALIZAR
  *********/
 function finalizar() {
-    if (typeof obtenerFirmaBase64 !== "function") return;
     const firma = obtenerFirmaBase64();
-
-    // Validar que no sea una firma vacía
     if (!firma || firma.length < 2000) {
-        alert("El técnico debe firmar para finalizar.");
+        alert("El técnico debe firmar.");
         return;
     }
 
     const compDiv = document.getElementById("comprobante");
     let itemsHTML = materialesCargados.map(m => `
-        <li style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+        <li style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
             <small style="color: #777;">${m.codigo}</small><br>
             ${m.descripcion} - <strong>x${m.cantidad}</strong>
         </li>
@@ -168,7 +163,7 @@ function finalizar() {
 
     compDiv.innerHTML = `
         <div style="padding: 10px;">
-            <h3 style="color: #1d70b8; text-align:center;">CARGA FINALIZADA</h3>
+            <h3 style="color: #1d70b8; text-align:center;">CARGA REGISTRADA</h3>
             <p><strong>Técnico:</strong> ${tecnicoSeleccionado}</p>
             <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</p>
             <hr>
