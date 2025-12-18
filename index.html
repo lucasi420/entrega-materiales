@@ -13,17 +13,17 @@
   </div>
 
   <main id="app">
+
     <section id="pantallaDatos" class="pantalla">
       <h2>Registro de Técnico</h2>
       <label for="tecnico">Seleccione su nombre:</label>
       <select id="tecnico" onchange="irMateriales()">
         <option value="">-- Seleccionar Técnico --</option>
-        </select>
+      </select>
     </section>
 
     <section id="pantallaMateriales" class="pantalla">
       <h2>Carga de Materiales</h2>
-      
       <div class="formulario-carga">
         <label>Material:</label>
         <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material..." autocomplete="off">
@@ -39,7 +39,7 @@
       </div>
 
       <div class="lista-contenedor" style="margin-top: 25px;">
-        <h3>Materiales en lista:</h3>
+        <h3>Lista de carga:</h3>
         <ul id="lista"></ul>
       </div>
     </section>
@@ -47,18 +47,17 @@
     <section id="pantallaFirma" class="pantalla">
       <h2>Firma de Conformidad</h2>
       <p style="text-align: center; color: #666; font-size: 0.9rem;">Firme dentro del recuadro:</p>
-      
       <canvas id="canvasFirma"></canvas>
-
       <div class="firma-botones">
         <button onclick="limpiarFirma()" style="background: #6c757d;">Limpiar</button>
-        <button onclick="finalizar()">Finalizar y Enviar</button>
+        <button onclick="finalizar()">Finalizar Registro</button>
       </div>
     </section>
 
     <section id="pantallaComprobante" class="pantalla">
       <div id="comprobante"></div>
     </section>
+
   </main>
 
   <script src="./js/tecnicos.js"></script>
