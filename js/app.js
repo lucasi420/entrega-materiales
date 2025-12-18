@@ -5,21 +5,32 @@ let materialesCargados = [];
 let tecnicoSeleccionado = "";
 
 /*********
- * INICIALIZACIÓN
+ * INICIALIZACIÓN AL CARGAR LA PÁGINA
  *********/
 document.addEventListener("DOMContentLoaded", () => {
-    // Llenar el datalist con los nombres de tu archivo materiales.js
+    // 1. Llenar Select de Técnicos desde tecnicos.js
+    const selectTecnicos = document.getElementById("tecnico");
+    if (typeof TECNICOS !== "undefined" && selectTecnicos) {
+        // Opcional: .sort() para ordenarlos alfabéticamente
+        TECNICOS.sort().forEach(t => {
+            let option = document.createElement("option");
+            option.value = t;
+            option.textContent = t;
+            selectTecnicos.appendChild(option);
+        });
+    }
+
+    // 2. Llenar Datalist de Materiales desde materiales.js
     const datalist = document.getElementById("listaSugerencias");
-    if (typeof MATERIALES !== "undefined") {
+    if (typeof MATERIALES !== "undefined" && datalist) {
         MATERIALES.forEach(item => {
             let option = document.createElement("option");
-            option.value = item.nombre; // El técnico busca por nombre
-            option.dataset.codigo = item.codigo; // Guardamos el código oculto
+            option.value = item.nombre;
             datalist.appendChild(option);
         });
     }
 
-    // Splash
+    // 3. Manejo del Splash
     setTimeout(() => {
         const splash = document.getElementById("splash");
         if (splash) {
@@ -29,25 +40,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 2000);
 });
 
+/*********
+ * NAVEGACIÓN
+ *********/
 function mostrarPantalla(id) {
     document.querySelectorAll(".pantalla").forEach(p => p.classList.remove("activa"));
-    document.getElementById(id).classList.add("activa");
+    const destino = document.getElementById(id);
+    if (destino) destino.classList.add("activa");
 }
 
-/*********
- * PASO 1 – TÉCNICO (SALTO AUTOMÁTICO)
- *********/
 function irMateriales() {
-    const select = document.getElementById("tecnico");
-    tecnicoSeleccionado = select.value;
-
+    tecnicoSeleccionado = document.getElementById("tecnico").value;
     if (tecnicoSeleccionado !== "") {
         mostrarPantalla("pantallaMateriales");
     }
 }
 
 /*********
- * PASO 2 – MATERIALES (BUSCADOR Y EDICIÓN)
+ * LOGICA DE MATERIALES
  *********/
 function agregarMaterial() {
     const inputBusca = document.getElementById("buscador");
@@ -56,20 +66,20 @@ function agregarMaterial() {
     const nombreMaterial = inputBusca.value.trim();
     const cantVal = parseInt(inputCant.value);
 
-    // Validar que el material exista en tu lista de materiales.js
+    // Validar que el material exista en la lista de materiales.js
     const materialEncontrado = MATERIALES.find(m => m.nombre === nombreMaterial);
 
     if (!materialEncontrado) {
-        alert("Seleccione un material válido de la lista desplegable.");
+        alert("Por favor, seleccione un material válido de la lista.");
         return;
     }
 
     if (isNaN(cantVal) || cantVal <= 0) {
-        alert("Ingrese una cantidad válida");
+        alert("Ingrese una cantidad válida mayor a cero.");
         return;
     }
 
-    // Agregar al array con su código
+    // Agregar al array
     materialesCargados.push({
         codigo: materialEncontrado.codigo,
         descripcion: materialEncontrado.nombre,
@@ -78,7 +88,7 @@ function agregarMaterial() {
 
     renderLista();
     
-    // Limpiar y enfocar
+    // Resetear campos
     inputBusca.value = "";
     inputCant.value = "";
     inputBusca.focus();
@@ -97,8 +107,8 @@ function renderLista() {
                 <span>Cantidad: ${m.cantidad}</span>
             </div>
             <div class="acciones-item">
-                <button class="btn-edit" onclick="editarMaterial(${index})" title="Editar">✏️</button>
-                <button class="btn-del" onclick="eliminarMaterial(${index})" title="Eliminar">🗑️</button>
+                <button class="btn-edit" onclick="editarMaterial(${index})">✏️</button>
+                <button class="btn-del" onclick="eliminarMaterial(${index})">🗑️</button>
             </div>
         `;
         listaUI.appendChild(li);
@@ -106,7 +116,7 @@ function renderLista() {
 }
 
 function eliminarMaterial(index) {
-    if(confirm("¿Eliminar este material?")) {
+    if(confirm("¿Desea eliminar este material de la lista?")) {
         materialesCargados.splice(index, 1);
         renderLista();
     }
@@ -122,50 +132,51 @@ function editarMaterial(index) {
             materialesCargados[index].cantidad = num;
             renderLista();
         } else {
-            alert("Cantidad no válida");
+            alert("Cantidad no válida.");
         }
     }
 }
 
 function irFirma() {
     if (materialesCargados.length === 0) {
-        alert("Debe cargar al menos un material");
+        alert("Cargue al menos un material antes de continuar.");
         return;
     }
     mostrarPantalla("pantallaFirma");
 }
 
 /*********
- * PASO 3 – FINALIZAR
+ * FINALIZAR
  *********/
 function finalizar() {
     if (typeof obtenerFirmaBase64 !== "function") return;
     const firma = obtenerFirmaBase64();
 
+    // Validar que no sea una firma vacía
     if (!firma || firma.length < 2000) {
-        alert("El técnico debe firmar.");
+        alert("El técnico debe firmar para finalizar.");
         return;
     }
 
     const compDiv = document.getElementById("comprobante");
     let itemsHTML = materialesCargados.map(m => `
-        <li style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
-            <small>${m.codigo}</small><br>
+        <li style="margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 5px;">
+            <small style="color: #777;">${m.codigo}</small><br>
             ${m.descripcion} - <strong>x${m.cantidad}</strong>
         </li>
     `).join('');
 
     compDiv.innerHTML = `
         <div style="padding: 10px;">
-            <h3 style="color: #1d70b8; text-align:center;">RESUMEN DE CARGA</h3>
+            <h3 style="color: #1d70b8; text-align:center;">CARGA FINALIZADA</h3>
             <p><strong>Técnico:</strong> ${tecnicoSeleccionado}</p>
-            <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</p>
+            <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</p>
             <hr>
             <ul style="list-style: none; padding: 0;">${itemsHTML}</ul>
             <hr>
             <p>Firma:</p>
-            <img src="${firma}" style="width: 100%; border: 1px solid #ccc; background: #fff;">
-            <button onclick="window.print()" style="background: #6c757d;">Imprimir o Guardar PDF</button>
+            <img src="${firma}" style="width: 100%; border: 1px solid #ccc; background: #fff; border-radius: 8px;">
+            <button onclick="window.print()" style="background: #6c757d; margin-top:20px;">Imprimir / PDF</button>
             <button onclick="location.reload()" style="background: #28a745;">Nueva Carga</button>
         </div>
     `;
