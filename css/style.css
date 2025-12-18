@@ -1,60 +1,199 @@
-/* SPLASH SCREEN CINEMATOGRÁFICO */
+/* 1. CONFIGURACIÓN GENERAL */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f2f4f7;
+  color: #333;
+  overflow-x: hidden;
+}
+
+/* 2. PRESENTACIÓN CINEMATOGRÁFICA (SPLASH) */
 #splash {
   position: fixed;
   inset: 0;
-  background: #0b3c5d; /* Color de fondo inicial */
+  background-color: #0b3c5d; /* Fondo azul profundo */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 9999;
+  transition: opacity 0.8s ease;
   overflow: hidden;
-  transition: opacity 1s ease-out;
 }
 
-.splash-content h1 {
+.texto-presentacion {
   color: white;
-  font-size: 1.5rem;
   text-align: center;
-  margin: 0;
+  font-size: 2rem;
   text-transform: uppercase;
-  letter-spacing: 2px;
-  /* Animación de entrada con Zoom */
-  animation: introZoom 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  letter-spacing: 5px;
+  margin: 0;
+  /* Animación: 3 segundos total */
+  animation: efectoZoomLuz 3s cubic-bezier(0.7, 0, 0.3, 1) forwards;
 }
 
-/* Efecto de Zoom y Luz */
-@keyframes introZoom {
+@keyframes efectoZoomLuz {
   0% {
-    transform: scale(0.1);
+    transform: scale(0.5);
     opacity: 0;
     filter: blur(10px);
   }
-  50% {
+  30% {
     transform: scale(1);
     opacity: 1;
     filter: blur(0);
-    text-shadow: 0 0 10px rgba(255,255,255,0.5);
   }
-  80% {
-    transform: scale(1.2);
-    opacity: 0.8;
+  70% {
+    transform: scale(1.1);
+    opacity: 1;
+    filter: brightness(1);
   }
   100% {
-    transform: scale(40); /* El zoom es tan grande que "atraviesa" las letras */
+    transform: scale(60); /* Zoom masivo para "atravesar" el texto */
     opacity: 0;
-    filter: brightness(5); /* Simula el destello de luz */
+    filter: brightness(10); /* Destello de luz final */
   }
 }
 
-/* El resto de tu CSS se mantiene igual... */
+/* 3. SISTEMA DE PANTALLAS */
 .pantalla {
-  display: none;
+  display: none; /* Ocultas por defecto */
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
+
 .pantalla.activa {
   display: block;
-  animation: fadeIn 0.8s ease;
+  animation: entradaSuave 0.6s ease-out;
 }
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+
+@keyframes entradaSuave {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 4. FORMULARIOS Y BOTONES */
+h2 {
+  margin-top: 0;
+  color: #0b3c5d;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+select, input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background: #1d70b8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+/* 5. LISTA DE MATERIALES CARGADOS */
+#lista {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+#lista li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 5px;
+  border-radius: 6px;
+}
+
+.acciones-item {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-edit {
+  background: #ffc107;
+  color: #000;
+  padding: 8px;
+  width: auto;
+  font-size: 14px;
+}
+
+.btn-del {
+  background: #dc3545;
+  color: #fff;
+  padding: 8px;
+  width: auto;
+  font-size: 14px;
+}
+
+/* 6. FIRMA (CANVAS) */
+#canvasFirma {
+  width: 100%;
+  height: 220px;
+  background: #fff;
+  border: 2px dashed #999;
+  border-radius: 10px;
+  margin: 15px 0;
+  touch-action: none; /* Importante para dibujar en móviles */
+}
+
+.firma-botones {
+  display: flex;
+  gap: 10px;
+}
+
+/* 7. COMPROBANTE FINAL */
+#comprobante {
+  background: white;
+  line-height: 1.6;
+}
+
+#comprobante hr {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 15px 0;
+}
+
+#comprobante ul {
+  padding-left: 20px;
+}
+
+/* AJUSTES PARA IMPRESIÓN */
+@media print {
+  body { background: white; }
+  .pantalla { box-shadow: none; border: none; margin: 0; max-width: 100%; }
+  button { display: none; }
 }
