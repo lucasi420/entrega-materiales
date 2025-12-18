@@ -1,112 +1,84 @@
-/* RESET GENERAL */
+/* RESET TOTAL */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   background: #f2f4f7;
-  overflow-x: hidden;
+  overflow: hidden; /* Evita scroll durante la presentación */
 }
 
-/* 1. PRESENTACIÓN (SPLASH) - DEBE SER FIXED Y Z-INDEX ALTO */
+/* CAPA DE PRESENTACIÓN (SPLASH) */
 #splash {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #0b3c5d;
+  background-color: #0b3c5d; /* Azul Ushuaia */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10000; /* Cubre todo */
-  transition: opacity 0.8s ease-out;
-  overflow: hidden;
+  z-index: 10000;
+  transition: all 0.8s ease-in-out;
 }
 
 .texto-presentacion {
   color: white;
   text-align: center;
-  font-size: 2.2rem;
+  font-size: 2.5rem;
   text-transform: uppercase;
-  letter-spacing: 6px;
-  line-height: 1.2;
-  /* Animación de 3 segundos */
-  animation: efectoZoomLuz 3s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+  letter-spacing: 8px;
+  font-weight: 900;
+  opacity: 0;
+  /* Animación: dura 3.5s */
+  animation: presentacionCine 3.5s ease-in-out forwards;
 }
 
-@keyframes efectoZoomLuz {
-  0% { transform: scale(0.5); opacity: 0; filter: blur(10px); }
-  30% { transform: scale(1); opacity: 1; filter: blur(0); }
-  70% { transform: scale(1.1); opacity: 1; filter: brightness(1); }
-  100% { transform: scale(70); opacity: 0; filter: brightness(10); }
+@keyframes presentacionCine {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+    filter: blur(20px);
+  }
+  20% {
+    transform: scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+  70% {
+    transform: scale(1.1);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  100% {
+    transform: scale(100); /* El texto crece tanto que sales por el centro de las letras */
+    opacity: 0;
+    filter: brightness(5);
+  }
 }
 
-/* 2. PANTALLAS */
+/* PANTALLAS (OCULTAS) */
 .pantalla {
-  display: none; /* Oculto inicialmente */
-  max-width: 480px;
-  margin: 40px auto;
-  padding: 25px;
+  display: none; 
+  max-width: 450px;
+  margin: 50px auto;
+  padding: 30px;
   background: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
 }
 
 .pantalla.activa {
   display: block;
-  animation: fadeUp 0.8s ease-out;
+  animation: fadeUp 1s ease forwards;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(40px); }
+  from { opacity: 0; transform: translateY(50px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 3. ELEMENTOS DE FORMULARIO */
-h2 { color: #0b3c5d; margin-bottom: 20px; text-align: center; }
-label { display: block; margin: 10px 0 5px; font-weight: 600; color: #555; }
-select, input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  font-size: 16px;
-}
-
-button {
-  width: 100%;
-  padding: 14px;
-  border: none;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 16px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-button:active { transform: scale(0.97); }
-
-/* 4. LISTA Y FIRMA */
-#lista { list-style: none; margin-top: 15px; }
-#lista li {
-  background: #f9f9f9;
-  padding: 12px;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 8px;
-  border-radius: 8px;
-  display: flex;
-  justify-content: space-between;
-}
-
-#canvasFirma {
-  width: 100%;
-  height: 200px;
-  background: #fff;
-  border: 2px dashed #bbb;
-  border-radius: 10px;
-  margin: 15px 0;
-  touch-action: none;
-}
-
-.firma-botones { display: flex; gap: 10px; }
+/* ESTILOS DE INTERFAZ */
+select, input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; font-size: 16px; }
+button { width: 100%; padding: 15px; background: #1d70b8; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+#canvasFirma { width: 100%; height: 250px; border: 2px dashed #ccc; border-radius: 15px; margin: 15px 0; touch-action: none; }
