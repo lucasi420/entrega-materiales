@@ -1,13 +1,39 @@
-/* RESET GENERAL */
+/* RESET TOTAL */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden; /* BLOQUEO TOTAL DE SCROLL EXTERNO */
+  background: #0b3c5d;
   font-family: 'Segoe UI', sans-serif;
-  background: #0b3c5d; /* Fondo inicial igual al splash */
-  overflow: hidden;
 }
 
-/* ACTO 0: PRESENTACIÓN ANIMADA */
+/* CONTENEDOR APP - OCUPA TODA LA VENTANA */
+#app {
+  width: 100%;
+  height: 100%;
+  display: none; 
+  opacity: 0;
+  transition: opacity 0.8s;
+  background: #f2f4f7;
+}
+
+/* INSTANCIAS (PANTALLAS) */
+.pantalla {
+  display: none; /* Desaparecen por completo del flujo */
+  width: 100%;
+  height: 100%; /* Cada pantalla mide exactamente lo que mide el celular */
+  padding: 20px;
+  flex-direction: column;
+  overflow-y: auto; /* Solo permite scroll interno si la lista de materiales es muy larga */
+}
+
+.pantalla.activa {
+  display: flex; /* Solo la activa existe en la pantalla */
+}
+
+/* ESTILOS DEL CARTEL DE INICIO (SPLASH) */
 #splash {
   position: fixed;
   inset: 0;
@@ -35,51 +61,28 @@ body {
   100% { transform: scale(80); opacity: 0; filter: brightness(10); }
 }
 
-/* CONTENEDOR APP */
-#app { display: none; opacity: 0; transition: opacity 0.8s; }
+/* INTERFAZ */
+h2 { color: #0b3c5d; text-align: center; margin: 10px 0 20px; }
+select, input { width: 100%; padding: 15px; margin: 8px 0; border-radius: 12px; border: 1px solid #ddd; font-size: 16px; background: white; }
+button { width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; flex-shrink: 0; }
 
-/* ACTOS 1, 2 y 3: PANTALLAS INDEPENDIENTES */
-.pantalla {
-  display: none;
-  max-width: 500px;
-  margin: 40px auto;
-  padding: 30px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-  flex-direction: column;
-}
-
-.pantalla.activa { display: flex; animation: fadeUp 0.6s ease-out; }
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-
-/* FORMULARIOS */
-h2 { color: #0b3c5d; text-align: center; margin-bottom: 20px; }
-select, input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #ddd; font-size: 16px; }
-button { width: 100%; padding: 18px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
-
-/* RECUADRO DE FIRMA GRANDE Y MARCADO */
+/* RECUADRO DE FIRMA */
 #canvasFirma {
   width: 100%;
-  height: 350px; /* Más grande para comodidad */
-  border: 3px solid #0b3c5d; /* Bien marcado */
+  height: 350px;
+  border: 4px solid #0b3c5d;
   border-radius: 15px;
   background: #fff;
   touch-action: none;
-  margin: 20px 0;
+  margin: 15px 0;
 }
 
-/* CARTEL DE ÉXITO PANTALLA COMPLETA */
+/* PANTALLA DE ÉXITO FINAL */
 #pantallaComprobante {
-  max-width: 100%;
-  height: 100vh;
-  margin: 0;
-  border-radius: 0;
+  background: #28a745;
+  color: white;
   justify-content: center;
   align-items: center;
-  background: #28a745; /* Fondo verde éxito */
-  color: white;
 }
 
-#lista li { background: #f8f9fa; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; border-left: 5px solid #0b3c5d; }
+#lista li { background: white; padding: 12px; margin-bottom: 8px; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
