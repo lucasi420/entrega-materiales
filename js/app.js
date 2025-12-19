@@ -99,14 +99,11 @@ async function finalizar() {
 
     const resp = document.getElementById("tecnico").value;
 
-    // PREPARAR MATERIALES (Esto es lo que faltaba para el PDF)
-    const listaMateriales = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion}`).join("\n");
-
-    // 1. GENERAR NOMBRE
+    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
     const ahora = new Date();
     const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
 
-    // 2. MOSTRAR PANTALLA DE ÉXITO
+    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
     mostrarPantalla("pantallaComprobante");
     document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
 
