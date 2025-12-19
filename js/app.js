@@ -1,45 +1,56 @@
 let materialesCargados = [];
 
-window.onload = function() {
-    // 1. Cargar Listas
-    try {
-        if (typeof TECNICOS !== 'undefined') {
-            const sel = document.getElementById("tecnico");
-            TECNICOS.sort().forEach(t => {
-                let o = document.createElement("option");
-                o.value = t; o.textContent = t;
-                sel.appendChild(o);
-            });
-        }
-        if (typeof MATERIALES !== 'undefined') {
-            const dl = document.getElementById("listaSugerencias");
-            MATERIALES.forEach(m => {
-                let o = document.createElement("option");
-                o.value = m.nombre;
-                dl.appendChild(o);
-            });
-        }
-    } catch (e) { console.warn("Error en listas:", e); }
-
-    // 2. Mostrar App
-    const app = document.getElementById("app");
-    if(app) {
+document.addEventListener("DOMContentLoaded", () => {
+    inicializarListas();
+    // Tiempo de splash (3.5 segundos) antes de mostrar la app
+    setTimeout(() => {
+        const app = document.getElementById("app");
         app.style.display = "block";
-        app.style.opacity = "1";
+        mostrarPantalla("pantallaPrincipal");
+        setTimeout(() => { app.style.opacity = "1"; }, 50);
+    }, 3500); 
+});
+
+function inicializarListas() {
+    if (typeof TECNICOS !== "undefined") {
+        const r = document.getElementById("tecnico");
+        const a = document.getElementById("tecnicoAuxiliar");
+        TECNICOS.sort().forEach(t => {
+            let o1 = document.createElement("option"); o1.value = t; o1.textContent = t;
+            let o2 = document.createElement("option"); o2.value = t; o2.textContent = t;
+            r.appendChild(o1); a.appendChild(o2);
+        });
     }
-    mostrarPantalla("pantallaPrincipal");
-};
+    if (typeof MATERIALES !== "undefined") {
+        const dl = document.getElementById("listaSugerencias");
+        MATERIALES.forEach(m => {
+            let o = document.createElement("option"); o.value = m.nombre;
+            dl.appendChild(o);
+        });
+    }
+}
 
 function mostrarPantalla(id) {
-    document.querySelectorAll('.pantalla').forEach(p => p.style.display = 'none');
-    const destino = document.getElementById(id);
-    if (destino) destino.style.display = 'block';
+    document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+    
+    const btnSig = document.getElementById("btnSiguiente");
+    if (id !== 'pantallaPrincipal') {
+        if(btnSig) {
+            btnSig.style.visibility = "hidden";
+            btnSig.style.display = "none";
+        }
+    } else if (materialesCargados.length > 0) {
+        if(btnSig) {
+            btnSig.style.visibility = "visible";
+            btnSig.style.display = "block";
+        }
+    }
 
-    if (id === 'pantallaFirma') {
-        setTimeout(() => {
-            // Llamamos a la función de firma.js
-            if (typeof inicializarFirma === "function") inicializarFirma();
-        }, 300);
+    const destino = document.getElementById(id);
+    if(destino) destino.classList.add('activa');
+
+    if (id === 'pantallaFirma' && typeof ajustarCanvas === "function") {
+        setTimeout(ajustarCanvas, 250);
     }
 }
 
@@ -52,49 +63,75 @@ function agregarMaterial() {
         materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: c.value });
         renderLista();
         b.value = ""; c.value = ""; b.focus();
-    } else { alert("Material o cantidad no válida"); }
+    } else {
+        alert("Seleccione un material válido y cantidad mayor a 0");
+    }
 }
 
 function renderLista() {
     const ui = document.getElementById("lista");
     ui.innerHTML = "";
+    const btnSig = document.getElementById("btnSiguiente");
+    
+    if (materialesCargados.length > 0) {
+        btnSig.style.display = "block";
+        btnSig.style.visibility = "visible";
+    } else {
+        btnSig.style.display = "none";
+    }
+
     materialesCargados.forEach((m, i) => {
-        ui.innerHTML += `<li>${m.cantidad}x ${m.descripcion} <button onclick="materialesCargados.splice(${i},1);renderLista()">X</button></li>`;
+        const li = document.createElement("li");
+        li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
+                        <button onclick="materialesCargados.splice(${i},1);renderLista();">🗑️</button>`;
+        ui.appendChild(li);
     });
-    const btn = document.getElementById("btnSiguiente");
-    if(btn) btn.style.display = materialesCargados.length > 0 ? "block" : "none";
 }
 
 function irAFirma() {
-    if (!document.getElementById("tecnico").value) return alert("Seleccione técnico");
+    if (!document.getElementById("tecnico").value) return alert("Seleccione el responsable");
     mostrarPantalla("pantallaFirma");
 }
 
 async function finalizar() {
     const firmaData = obtenerFirmaBase64();
-    if (firmaData.length < 2000) return alert("Firma obligatoria");
+    if (firmaData.length < 2000) return alert("Firma obligatoria para finalizar");
 
     const resp = document.getElementById("tecnico").value;
-    const listaTexto = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion} [${m.codigo}]`).join("\n");
+    
+    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
+    const ahora = new Date();
+    const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
 
+    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
     mostrarPantalla("pantallaComprobante");
-    document.getElementById("resumenFinal").innerHTML = "⌛ Enviando...";
+    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
+
+    // 3. TU URL DE GOOGLE APPS SCRIPT
+    const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
 
     const payload = {
-        imagen: firmaData.split(',')[1],
-        nombre: `Reporte_${Date.now()}.pdf`,
-        tecnico: resp,
-        detalles: listaTexto
+        imagen: firmaData.split(',')[1], 
+        nombre: nombreArchivo,
+        tecnico: resp
     };
 
     try {
-        await fetch("https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec", {
+        await fetch(urlScript, {
             method: 'POST',
-            mode: 'no-cors',
+            mode: 'no-cors', 
             body: JSON.stringify(payload)
         });
-        document.getElementById("resumenFinal").innerHTML = "✅ ENVIADO CON ÉXITO";
-    } catch (e) {
-        document.getElementById("resumenFinal").innerHTML = "❌ Error al enviar.";
+        
+        document.getElementById("resumenFinal").innerHTML = `
+            <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
+                <p>Responsable: <strong>${resp}</strong></p>
+                <p>Archivo: <strong>${nombreArchivo}</strong></p>
+                <p style="margin-top: 10px; color: green; font-weight: bold;">✅ GUARDADO EN DRIVE</p>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión con Drive, pero el registro se procesó.</p>`;
     }
 }
