@@ -1,13 +1,35 @@
+/* RESET TOTAL */
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { 
-    width: 100vw; height: 100vh; 
-    overflow: hidden; /* Prohibido deslizar */
-    background: #0b3c5d; 
-    font-family: sans-serif;
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden; /* Prohibido el scroll del navegador */
+    background: #0b3c5d;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
-.pantalla { 
-    display: none; 
-    width: 100vw; height: 100vh; 
-    position: absolute; top: 0; left: 0; 
+
+/* ESTRUCTURA DE PANTALLAS */
+.pantalla {
+    display: none; /* Desaparece del mapa si no es activa */
+    width: 100vw;
+    height: 100vh;
+    position: fixed; /* Anclada a la vista */
+    top: 0;
+    left: 0;
+    background: #f2f4f7; /* Fondo sólido para que no se vea lo de abajo */
+    z-index: 1;
 }
-.pantalla.activa { display: flex; flex-direction: column; }
+
+.pantalla.activa {
+    display: flex;
+    flex-direction: column;
+    z-index: 100; /* La pantalla actual siempre arriba */
+}
+
+#splash {
+    z-index: 9999; /* El splash por encima de todo */
+    background: #0b3c5d;
+    justify-content: center;
+    align-items: center;
+}
