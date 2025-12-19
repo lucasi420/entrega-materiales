@@ -99,18 +99,17 @@ async function finalizar() {
 
     const resp = document.getElementById("tecnico").value;
 
-    // --- AGREGADO: PREPARAR LOS DATOS PARA EL PDF ---
-    // Unimos los materiales cargados en un solo texto separado por renglones
+    // PREPARAR MATERIALES (Esto es lo que faltaba para el PDF)
     const listaMateriales = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion}`).join("\n");
-    // -----------------------------------------------
 
-    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
+    // 1. GENERAR NOMBRE
     const ahora = new Date();
     const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
 
-    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
+    // 2. MOSTRAR PANTALLA DE ÉXITO
     mostrarPantalla("pantallaComprobante");
     document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
+
 
     // 3. ENVÍO AL SCRIPT (Asegúrate de que la URL sea la tuya)
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
