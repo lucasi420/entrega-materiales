@@ -121,7 +121,7 @@ async function finalizar() {
     document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Generando PDF y enviando a Drive...</p>`;
 
     // 3. URL DE TU SCRIPT
-    const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
+    const urlScript = "https://script.google.com/macros/s/AKfycbwdK2pNmngSG494mgt6WIYvEPuqpahl56JyHAfnGbBYL6L_1luC3j0pyAwrZL8Jgs3qKg/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1], 
