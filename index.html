@@ -5,17 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Control Materiales Ushuaia</title>
     <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/splash.css">
+    <link rel="stylesheet" href="css/registro.css">
     <link rel="stylesheet" href="css/firma.css">
+    <link rel="stylesheet" href="css/exito.css">
 </head>
 <body>
 
-    <main id="app">
-        <section id="pantallaPrincipal" class="pantalla activa">
-            <h2>Registro de Servicio</h2>
+    <div id="splash" class="pantalla activa">
+        <h1 class="texto-presentacion">Control Materiales<br>Ushuaia</h1>
+    </div>
+
+    <main id="app" style="display: none; opacity: 0;">
+        
+        <section id="pantallaPrincipal" class="pantalla">
+            <h2>Datos del Servicio</h2>
             <div class="campos-tecnicos">
                 <label>Técnico Responsable:</label>
                 <select id="tecnico">
                     <option value="">-- Seleccionar --</option>
+                </select>
+                <label>Técnico Auxiliar (Opcional):</label>
+                <select id="tecnicoAuxiliar">
+                    <option value="">-- Ninguno --</option>
                 </select>
             </div>
 
@@ -23,32 +35,33 @@
                 <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material...">
                 <datalist id="listaSugerencias"></datalist>
                 <input type="number" id="cantidad" placeholder="Cant.">
-                <button onclick="agregarMaterial()">➕ Agregar</button>
+                <button class="btn-agregar" onclick="agregarMaterial()">➕ Agregar</button>
             </div>
             
-            <ul id="lista"></ul>
-
-            <button id="btnSiguiente" onclick="irAFirma()" style="display:none; background:#0b3c5d; color:white; width:100%; padding:15px; margin-top:10px;">
+            <button id="btnSiguiente" class="btn-siguiente" onclick="irAFirma()" style="display:none;">
                 SIGUIENTE: FIRMAR ➔
             </button>
+
+            <div class="lista-contenedor">
+                <ul id="lista"></ul>
+            </div>
         </section>
 
-        <section id="pantallaFirma" class="pantalla" style="display:none;">
+        <section id="pantallaFirma" class="pantalla">
             <h2>Firma de Conformidad</h2>
             <div class="canvas-container">
                 <canvas id="canvasFirma"></canvas>
             </div>
-            <button class="btn-enviar" onclick="finalizar()">ENVIAR REPORTE PDF</button>
-            <button onclick="limpiarFirma()">Borrar Firma</button>
-            <button onclick="mostrarPantalla('pantallaPrincipal')">⬅ Volver</button>
+            <button class="btn-enviar" onclick="finalizar()">ENVIAR REGISTRO FINAL</button>
+            <button class="btn-borrar" onclick="limpiarFirma()">Borrar Firma</button>
+            <button class="btn-volver" onclick="mostrarPantalla('pantallaPrincipal')">⬅ Volver a Materiales</button>
         </section>
 
-        <section id="pantallaComprobante" class="pantalla" style="display:none;">
-            <div style="text-align:center; padding:50px 20px;">
-                <h1 style="color:green;">✅ ENVIADO</h1>
-                <div id="resumenFinal"></div>
-                <button onclick="location.reload()" style="padding:15px; margin-top:20px;">NUEVA CARGA</button>
-            </div>
+        <section id="pantallaComprobante" class="pantalla">
+            <div class="check-grande">✅</div>
+            <h1>ENVÍO COMPLETADO</h1>
+            <div id="resumenFinal"></div>
+            <button class="btn-nuevo" onclick="location.reload()">NUEVA CARGA</button>
         </section>
     </main>
 
