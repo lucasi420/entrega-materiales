@@ -25,7 +25,7 @@
                 <select id="tecnico">
                     <option value="">-- Seleccionar --</option>
                 </select>
-                <label>Técnico Auxiliar (Opcional):</label>
+                <label>Técnico Auxiliar:</label>
                 <select id="tecnicoAuxiliar">
                     <option value="">-- Ninguno --</option>
                 </select>
@@ -49,17 +49,15 @@
 
         <section id="pantallaFirma" class="pantalla">
             <h2>Firma de Conformidad</h2>
-            <div class="canvas-container">
-                <canvas id="canvasFirma"></canvas>
-            </div>
-            <button class="btn-enviar" onclick="finalizar()">ENVIAR REGISTRO FINAL</button>
-            <button class="btn-borrar" onclick="limpiarFirma()">Borrar Firma</button>
-            <button class="btn-volver" onclick="mostrarPantalla('pantallaPrincipal')">⬅ Volver a Materiales</button>
+            <canvas id="canvasFirma"></canvas>
+            <button class="btn-enviar" onclick="finalizar()">ENVIAR REGISTRO</button>
+            <button onclick="limpiarFirma()" style="background:#6c757d; color:white; border:none; padding:10px; border-radius:8px; margin-top:10px;">Borrar Firma</button>
+            <button onclick="mostrarPantalla('pantallaPrincipal')" style="background:none; border:none; color:#0b3c5d; text-decoration:underline; margin-top:20px;">⬅ Editar Materiales</button>
         </section>
 
         <section id="pantallaComprobante" class="pantalla">
             <div class="check-grande">✅</div>
-            <h1>ENVÍO COMPLETADO</h1>
+            <h1>CARGA EXITOSA</h1>
             <div id="resumenFinal"></div>
             <button class="btn-nuevo" onclick="location.reload()">NUEVA CARGA</button>
         </section>
