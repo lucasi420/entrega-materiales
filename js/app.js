@@ -2,7 +2,7 @@ let materialesCargados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarListas();
-    // Splash inicial
+    // Splash inicial de 3 segundos
     setTimeout(() => {
         const app = document.getElementById("app");
         app.style.display = "block";
@@ -31,21 +31,34 @@ function inicializarListas() {
 }
 
 function mostrarPantalla(id) {
-    document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+    // 1. Ocultar todas las secciones
+    document.querySelectorAll('.pantalla').forEach(p => {
+        p.classList.remove('activa');
+        p.style.display = 'none';
+    });
     
-    // Control visual del botón Siguiente
-    const btnSig = document.getElementById("btnSiguiente");
-    if (id !== 'pantallaPrincipal') {
-        if(btnSig) btnSig.style.display = "none";
-    } else if (materialesCargados.length > 0) {
-        if(btnSig) btnSig.style.display = "block";
+    // 2. Mostrar la sección actual
+    const destino = document.getElementById(id);
+    if(destino) {
+        destino.classList.add('activa');
+        destino.style.display = 'block';
     }
 
-    const destino = document.getElementById(id);
-    if(destino) destino.classList.add('activa');
-
-    if (id === 'pantallaFirma' && typeof ajustarCanvas === "function") {
-        setTimeout(ajustarCanvas, 250);
+    // 3. REPARAR EL CUADRO DE FIRMA (Evita que se aplaste)
+    if (id === 'pantallaFirma') {
+        setTimeout(() => {
+            const canvas = document.getElementById('canvasFirma');
+            if (canvas) {
+                // Forzamos el tamaño interno al tamaño real que tiene en el celular
+                canvas.width = canvas.clientWidth;
+                canvas.height = 300; // Altura fija recomendada para celulares
+                
+                // Si tienes la función de inicialización en firma.js, la llamamos
+                if (typeof iniciarFirma === "function") {
+                    iniciarFirma();
+                }
+            }
+        }, 150); // Pequeño delay para que el navegador termine de renderizar el display:block
     }
 }
 
@@ -55,9 +68,12 @@ function agregarMaterial() {
     const mat = MATERIALES.find(m => m.nombre === b.value.trim());
 
     if (mat && parseInt(c.value) > 0) {
+        // Los materiales se guardan en el array global, no se borran al cambiar de pantalla
         materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: c.value });
         renderLista();
         b.value = ""; c.value = ""; b.focus();
+    } else {
+        alert("Seleccione un material y cantidad válida");
     }
 }
 
@@ -75,45 +91,38 @@ function renderLista() {
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
         li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
-                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="background:#dc3545; color:white; border:none; padding:8px; border-radius:5px;">🗑️</button>`;
+                        <button onclick="materialesCargados.splice(${i},1);renderLista();" class="btn-borrar-item">🗑️</button>`;
         ui.appendChild(li);
     });
 }
 
 function irAFirma() {
-    if (!document.getElementById("tecnico").value) return alert("Seleccione el técnico responsable");
+    if (!document.getElementById("tecnico").value) return alert("Por favor, seleccione el técnico responsable");
     mostrarPantalla("pantallaFirma");
 }
 
 async function finalizar() {
     const firmaData = obtenerFirmaBase64();
-    if (firmaData.length < 2000) return alert("La firma es obligatoria");
+    // Validamos que haya firmado (un base64 muy corto es un canvas vacío)
+    if (firmaData.length < 2000) return alert("Debe firmar el comprobante para finalizar");
 
     const resp = document.getElementById("tecnico").value;
-    const aux = document.getElementById("tecnicoAuxiliar").value || "Ninguno";
+    const aux = document.getElementById("tecnicoAuxiliar").value || "Sin auxiliar";
     
-    // 1. GENERAR NOMBRE PARA EL PDF
-    const ahora = new Date();
-    const nombreArchivo = `Reporte_${ahora.getDate()}-${ahora.getMonth()+1}_${ahora.getHours()}${ahora.getMinutes()}.pdf`;
+    // Convertimos la lista de materiales acumulada en un texto para el Google Doc
+    const textoMateriales = materialesCargados.map(m => `• ${m.cantidad}x ${m.descripcion} (${m.codigo})`).join("\n");
 
-    // 2. CAMBIAR A PANTALLA DE ÉXITO Y MOSTRAR CARGA
+    // Cambiamos a la pantalla de éxito/carga
     mostrarPantalla("pantallaComprobante");
-    document.getElementById("resumenFinal").innerHTML = `
-        <div style="text-align:center;">
-            <p id="statusTxt" style="color:#0b3c5d; font-weight:bold;">⏳ Generando PDF y enviando...</p>
-        </div>`;
-
-    // 3. PREPARAR LISTA DE MATERIALES PARA EL DOC
-    // Formato: "2x Cable (COD123), 5x Conector (COD456)..."
-    const detallesTexto = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion} (${m.codigo})`).join("\n");
+    document.getElementById("resumenFinal").innerHTML = `<p style="color:#0b3c5d;">⌛ Creando PDF y subiendo a Drive...</p>`;
 
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1],
-        nombre: nombreArchivo,
+        nombre: `Ticket_${Date.now()}.pdf`,
         tecnico: resp,
-        detalles: detallesTexto
+        detalles: `AUXILIAR: ${aux}\n\nLISTA DE MATERIALES:\n${textoMateriales}`
     };
 
     try {
@@ -124,17 +133,16 @@ async function finalizar() {
         });
         
         document.getElementById("resumenFinal").innerHTML = `
-            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                <p>Técnico: <strong>${resp}</strong></p>
-                <p>Auxiliar: <strong>${aux}</strong></p>
-                <p>Materiales registrados: <strong>${materialesCargados.length}</strong></p>
-                <hr style="margin:15px 0;">
-                <p style="color: green; font-weight: bold;">✅ ARCHIVO PDF GUARDADO EN DRIVE</p>
-                <p style="font-size: 0.8rem; color: #666; margin-top:5px;">${nombreArchivo}</p>
+            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #333;">
+                <h3 style="color: green;">✅ ENVÍO EXITOSO</h3>
+                <p><strong>Responsable:</strong> ${resp}</p>
+                <p><strong>Materiales:</strong> ${materialesCargados.length} ítems registrados.</p>
+                <hr>
+                <p><small>El comprobante PDF ya está disponible en tu Google Drive.</small></p>
             </div>
         `;
     } catch (error) {
         console.error("Error:", error);
-        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error al subir. Verifique su conexión.</p>`;
+        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de red. Intente nuevamente.</p>`;
     }
 }
