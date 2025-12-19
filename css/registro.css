@@ -1,6 +1,151 @@
-#pantallaPrincipal { background: #f2f4f7; padding: 20px; color: #333; }
-select, input { width: 100%; padding: 15px; margin: 8px 0; border-radius: 10px; border: 1px solid #ccc; font-size: 16px; }
-.btn-agregar { background: #17a2b8; color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; }
-#lista { flex-grow: 1; overflow-y: auto; margin-top: 15px; list-style: none; }
-#lista li { background: white; padding: 10px; margin-bottom: 5px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-.btn-siguiente { background: #0b3c5d; color: white; border: none; padding: 18px; border-radius: 10px; font-weight: bold; }
+/* --- INSTANCIA 1: REGISTRO Y MATERIALES --- */
+
+#pantallaPrincipal {
+    background: #f2f4f7;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    color: #333;
+}
+
+/* Títulos y Etiquetas */
+h2 {
+    color: #0b3c5d;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: #0b3c5d;
+    margin-top: 10px;
+    margin-bottom: 4px;
+}
+
+/* Campos de entrada y Selectores */
+select, input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 10px;
+    border: 2px solid #d1d9e0;
+    border-radius: 12px;
+    font-size: 16px;
+    background: white;
+    transition: border-color 0.3s;
+}
+
+select:focus, input:focus {
+    outline: none;
+    border-color: #0b3c5d;
+}
+
+/* Bloque de Técnicos */
+.campos-tecnicos {
+    background: #fff;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 20px;
+}
+
+/* Botón de Agregar Material */
+.btn-agregar {
+    background: #17a2b8;
+    color: white;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-agregar:active {
+    background: #138496;
+    transform: scale(0.98);
+}
+
+/* --- BOTÓN SIGUIENTE (Protagonista) --- */
+.btn-siguiente {
+    background: #0b3c5d;
+    color: white;
+    border: none;
+    padding: 20px;
+    border-radius: 15px;
+    font-weight: 900;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(11, 60, 93, 0.4);
+    margin: 25px 0;
+    z-index: 10;
+    /* Animación de pulso para llamar la atención */
+    animation: pulsoBtn 2s infinite;
+}
+
+@keyframes pulsoBtn {
+    0% { transform: scale(1); box-shadow: 0 6px 20px rgba(11, 60, 93, 0.4); }
+    50% { transform: scale(1.03); box-shadow: 0 8px 25px rgba(11, 60, 93, 0.6); }
+    100% { transform: scale(1); box-shadow: 0 6px 20px rgba(11, 60, 93, 0.4); }
+}
+
+/* --- LISTA DE MATERIALES CARGADOS --- */
+.lista-contenedor {
+    flex-grow: 1;
+    overflow-y: auto; /* Permite scroll solo aquí si la lista es muy larga */
+    background: #e9ecef;
+    padding: 15px;
+    border-radius: 15px;
+    min-height: 150px;
+}
+
+#lista {
+    list-style: none;
+}
+
+#lista li {
+    background: white;
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 5px solid #0b3c5d;
+}
+
+#lista li strong {
+    color: #333;
+    font-size: 0.95rem;
+}
+
+#lista li small {
+    color: #666;
+}
+
+/* Botón eliminar de la lista */
+#lista button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#lista button:active {
+    background: #c82333;
+}
