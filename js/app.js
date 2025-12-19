@@ -137,13 +137,14 @@ async function finalizar() {
             body: JSON.stringify(payload)
         });
         
+        // Solo mostramos el mensaje, sin el botón extra
         document.getElementById("resumenFinal").innerHTML = `
             <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #ddd; text-align: left;">
                 <h3 style="color: green; margin-top: 0;">✅ ¡ENVIADO CON ÉXITO!</h3>
                 <p><strong>Responsable:</strong> ${resp}</p>
-                <p><strong>Materiales:</strong> ${materialesCargados.length} items registrados.</p>
-                <p style="font-size: 0.85rem; color: #666; border-top: 1px solid #eee; pt-10;">Archivo: ${nombreArchivo}</p>
-                <button onclick="location.reload()" style="width: 100%; padding: 10px; background: #0b3c5d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">NUEVA CARGA</button>
+                <p style="font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
+                    Archivo: ${nombreArchivo}
+                </p>
             </div>
         `;
     } catch (error) {
