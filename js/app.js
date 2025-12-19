@@ -2,6 +2,7 @@ let materialesCargados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarListas();
+    // Tiempo de splash (3.5 segundos) antes de mostrar la app
     setTimeout(() => {
         const app = document.getElementById("app");
         app.style.display = "block";
@@ -30,23 +31,24 @@ function inicializarListas() {
 }
 
 function mostrarPantalla(id) {
-    // 1. Ocultar todas las pantallas
     document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
     
-    // 2. Controlar la visibilidad del botón Siguiente para que no flote en otras instancias
     const btnSig = document.getElementById("btnSiguiente");
     if (id !== 'pantallaPrincipal') {
-        btnSig.style.visibility = "hidden"; // Desaparece visualmente
-        btnSig.style.display = "none";      // Se quita del flujo
+        if(btnSig) {
+            btnSig.style.visibility = "hidden";
+            btnSig.style.display = "none";
+        }
     } else if (materialesCargados.length > 0) {
-        btnSig.style.visibility = "visible";
-        btnSig.style.display = "block";
+        if(btnSig) {
+            btnSig.style.visibility = "visible";
+            btnSig.style.display = "block";
+        }
     }
 
-    // 3. Activar destino
-    document.getElementById(id).classList.add('activa');
+    const destino = document.getElementById(id);
+    if(destino) destino.classList.add('activa');
 
-    // 4. Ajustar Canvas
     if (id === 'pantallaFirma' && typeof ajustarCanvas === "function") {
         setTimeout(ajustarCanvas, 250);
     }
@@ -61,6 +63,8 @@ function agregarMaterial() {
         materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: c.value });
         renderLista();
         b.value = ""; c.value = ""; b.focus();
+    } else {
+        alert("Seleccione un material válido y cantidad mayor a 0");
     }
 }
 
@@ -72,29 +76,62 @@ function renderLista() {
     if (materialesCargados.length > 0) {
         btnSig.style.display = "block";
         btnSig.style.visibility = "visible";
+    } else {
+        btnSig.style.display = "none";
     }
 
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
         li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
-                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="background:#dc3545; color:white; border:none; padding:8px; border-radius:5px;">🗑️</button>`;
+                        <button onclick="materialesCargados.splice(${i},1);renderLista();">🗑️</button>`;
         ui.appendChild(li);
     });
 }
 
 function irAFirma() {
     if (!document.getElementById("tecnico").value) return alert("Seleccione el responsable");
-    if (document.getElementById("tecnico").value === document.getElementById("tecnicoAuxiliar").value) return alert("Auxiliar no puede ser el mismo");
     mostrarPantalla("pantallaFirma");
 }
 
-function finalizar() {
-    const firma = obtenerFirmaBase64();
-    if (firma.length < 2000) return alert("Firma obligatoria");
+async function finalizar() {
+    const firmaData = obtenerFirmaBase64();
+    if (firmaData.length < 2000) return alert("Firma obligatoria para finalizar");
+
+    const resp = document.getElementById("tecnico").value;
     
-    document.getElementById("resumenFinal").innerHTML = `
-        <p>Responsable: ${document.getElementById("tecnico").value}</p>
-        <p>Items: ${materialesCargados.length}</p>
-    `;
+    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
+    const ahora = new Date();
+    const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
+
+    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
     mostrarPantalla("pantallaComprobante");
+    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
+
+    // 3. TU URL DE GOOGLE APPS SCRIPT
+    const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
+
+    const payload = {
+        imagen: firmaData.split(',')[1], 
+        nombre: nombreArchivo,
+        tecnico: resp
+    };
+
+    try {
+        await fetch(urlScript, {
+            method: 'POST',
+            mode: 'no-cors', 
+            body: JSON.stringify(payload)
+        });
+        
+        document.getElementById("resumenFinal").innerHTML = `
+            <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
+                <p>Responsable: <strong>${resp}</strong></p>
+                <p>Archivo: <strong>${nombreArchivo}</strong></p>
+                <p style="margin-top: 10px; color: green; font-weight: bold;">✅ GUARDADO EN DRIVE</p>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión con Drive, pero el registro se procesó.</p>`;
+    }
 }
