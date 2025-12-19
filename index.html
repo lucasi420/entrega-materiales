@@ -17,40 +17,57 @@
         <h1 class="texto-presentacion">Control Materiales<br>Ushuaia</h1>
     </div>
 
-    <main id="app">
+    <main id="app" style="display: none; opacity: 0;">
         
         <section id="pantallaPrincipal" class="pantalla">
-            <h2>Carga de Datos</h2>
-            <label>Técnico:</label>
-            <select id="tecnico">
-                <option value="">-- Seleccionar Técnico --</option>
-            </select>
+            <h2>Datos del Servicio</h2>
+            
+            <div class="campos-tecnicos">
+                <label>Técnico Responsable:</label>
+                <select id="tecnico">
+                    <option value="">-- Seleccionar Responsable --</option>
+                </select>
 
-            <div style="margin-top: 15px;">
+                <label>Técnico Auxiliar (Opcional):</label>
+                <select id="tecnicoAuxiliar">
+                    <option value="">-- Ninguno / Solo --</option>
+                </select>
+            </div>
+
+            <div class="formulario-materiales" style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                <label>Carga de Material:</label>
                 <input type="text" id="buscador" list="listaSugerencias" placeholder="Buscar material...">
                 <datalist id="listaSugerencias"></datalist>
+                
                 <input type="number" id="cantidad" placeholder="Cantidad">
-                <button class="btn-agregar" onclick="agregarMaterial()">➕ Agregar a Lista</button>
+                <button class="btn-agregar" onclick="agregarMaterial()" style="background: #17a2b8; color: white;">➕ Agregar a Lista</button>
             </div>
             
-            <ul id="lista"></ul>
-            
-            <button id="btnSiguiente" class="btn-siguiente" onclick="irAFirma()" style="display:none;">SIGUIENTE (FIRMA) ➔</button>
+            <button id="btnSiguiente" class="btn-siguiente" onclick="irAFirma()" style="display:none; width: 100%; margin: 20px 0; background: #0b3c5d; color: white;">
+                SIGUIENTE: FIRMAR REGISTRO ➔
+            </button>
+
+            <div class="lista-contenedor">
+                <h3 style="font-size: 0.9rem; color: #666;">Items en esta carga:</h3>
+                <ul id="lista" style="list-style: none; padding: 0;"></ul>
+            </div>
         </section>
 
         <section id="pantallaFirma" class="pantalla">
             <h2>Firma de Conformidad</h2>
-            <p style="text-align: center; margin-bottom: 10px; color: #555;">Use su dedo en el recuadro:</p>
+            <p style="text-align: center; color: #555;">Firme dentro del recuadro azul:</p>
+            
             <canvas id="canvasFirma"></canvas>
-            <button class="btn-enviar" onclick="finalizar()">ENVIAR REGISTRO</button>
-            <button onclick="limpiarFirma()" style="background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px; margin-top: 10px;">Limpiar</button>
-            <button onclick="mostrarPantalla('pantallaPrincipal')" style="background:none; color:#0b3c5d; text-decoration:underline; margin-top: 20px; border:none;">⬅ Volver a materiales</button>
+
+            <button class="btn-enviar" onclick="finalizar()" style="background: #28a745; color: white;">ENVIAR REGISTRO FINAL</button>
+            <button onclick="limpiarFirma()" style="margin-top: 10px; background: #6c757d; color: white; border: none; padding: 10px; border-radius: 8px;">Limpiar Recuadro</button>
+            <button onclick="mostrarPantalla('pantallaPrincipal')" style="margin-top: 20px; background: none; border: none; color: #0b3c5d; text-decoration: underline;">⬅ Volver a editar materiales</button>
         </section>
 
         <section id="pantallaComprobante" class="pantalla">
             <div class="check-grande">✅</div>
             <h1>CARGA EXITOSA</h1>
-            <p style="margin-top: 10px;">El registro se guardó correctamente.</p>
+            <div id="resumenFinal" style="margin: 20px 0; font-size: 1.1rem;"></div>
             <button class="btn-nuevo" onclick="location.reload()">NUEVA CARGA</button>
         </section>
 
