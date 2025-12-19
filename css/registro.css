@@ -6,9 +6,6 @@
     display: flex;
     flex-direction: column;
     color: #333;
-    /* Asegura que la pantalla sea opaca para no ver otras instancias */
-    position: relative;
-    z-index: 10;
 }
 
 /* Títulos y Etiquetas */
@@ -40,7 +37,6 @@ select, input {
     font-size: 16px;
     background: white;
     transition: border-color 0.3s;
-    appearance: none; /* Limpia estilos de sistema en móviles */
 }
 
 select:focus, input:focus {
@@ -48,14 +44,13 @@ select:focus, input:focus {
     border-color: #0b3c5d;
 }
 
-/* Bloque de Técnicos (Contenedor para los dos selectores) */
+/* Bloque de Técnicos */
 .campos-tecnicos {
     background: #fff;
     padding: 15px;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     margin-bottom: 20px;
-    border-top: 4px solid #0b3c5d;
 }
 
 /* Botón de Agregar Material */
@@ -73,7 +68,6 @@ select:focus, input:focus {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    margin-bottom: 15px;
 }
 
 .btn-agregar:active {
@@ -81,7 +75,7 @@ select:focus, input:focus {
     transform: scale(0.98);
 }
 
-/* --- BOTÓN SIGUIENTE (Interactivo) --- */
+/* --- BOTÓN SIGUIENTE (Protagonista) --- */
 .btn-siguiente {
     background: #0b3c5d;
     color: white;
@@ -94,31 +88,26 @@ select:focus, input:focus {
     letter-spacing: 1px;
     cursor: pointer;
     box-shadow: 0 6px 20px rgba(11, 60, 93, 0.4);
-    margin: 15px 0 25px 0;
-    
-    /* Crucial para que no se filtre a otras pantallas */
-    position: relative;
-    z-index: 5;
-    
-    /* Animación de pulso */
+    margin: 25px 0;
+    z-index: 10;
+    /* Animación de pulso para llamar la atención */
     animation: pulsoBtn 2s infinite;
 }
 
 @keyframes pulsoBtn {
     0% { transform: scale(1); box-shadow: 0 6px 20px rgba(11, 60, 93, 0.4); }
-    50% { transform: scale(1.02); box-shadow: 0 8px 25px rgba(11, 60, 93, 0.6); }
+    50% { transform: scale(1.03); box-shadow: 0 8px 25px rgba(11, 60, 93, 0.6); }
     100% { transform: scale(1); box-shadow: 0 6px 20px rgba(11, 60, 93, 0.4); }
 }
 
 /* --- LISTA DE MATERIALES CARGADOS --- */
 .lista-contenedor {
     flex-grow: 1;
-    overflow-y: auto; /* Scroll interno para la lista */
+    overflow-y: auto; /* Permite scroll solo aquí si la lista es muy larga */
     background: #e9ecef;
     padding: 15px;
     border-radius: 15px;
-    min-height: 120px;
-    border: 1px dashed #adb5bd;
+    min-height: 150px;
 }
 
 #lista {
@@ -128,39 +117,35 @@ select:focus, input:focus {
 #lista li {
     background: white;
     padding: 12px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    border-left: 5px solid #17a2b8;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 5px solid #0b3c5d;
 }
 
 #lista li strong {
-    color: #0b3c5d;
+    color: #333;
     font-size: 0.95rem;
-    display: block;
 }
 
 #lista li small {
-    color: #6c757d;
-    font-weight: bold;
+    color: #666;
 }
 
-/* Botón eliminar (Icono de papelera) */
+/* Botón eliminar de la lista */
 #lista button {
-    background: #f8d7da;
-    color: #721c24;
-    border: 1px solid #f5c6cb;
+    background: #dc3545;
+    color: white;
+    border: none;
     padding: 8px 12px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
-    transition: 0.2s;
 }
 
 #lista button:active {
-    background: #f1b0b7;
-    transform: scale(0.9);
+    background: #c82333;
 }
