@@ -99,21 +99,35 @@ async function finalizar() {
 
     const resp = document.getElementById("tecnico").value;
     
-    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
+    // --- NUEVO: FORMATEO "BONITO" DE MATERIALES ---
+    let detallesTexto = "REPORTE DE ENTREGA\n";
+    detallesTexto += "--------------------------------\n";
+    detallesTexto += `Técnico: ${resp}\n`;
+    detallesTexto += "--------------------------------\n";
+    detallesTexto += "MATERIALES ENTREGADOS:\n";
+    
+    materialesCargados.forEach((m, index) => {
+        detallesTexto += `${index + 1}. [Cód: ${m.codigo}] - ${m.descripcion} (Cant: ${m.cantidad})\n`;
+    });
+    detallesTexto += "--------------------------------\n";
+    // ----------------------------------------------
+
+    // 1. GENERAR NOMBRE: Fecha y Hora
     const ahora = new Date();
-    const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
+    const nombreArchivo = `Reporte_${resp}_${ahora.getDate()}-${ahora.getMonth()+1}.pdf`;
 
     // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
     mostrarPantalla("pantallaComprobante");
-    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
+    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Generando PDF y enviando a Drive...</p>`;
 
-    // 3. TU URL DE GOOGLE APPS SCRIPT
+    // 3. URL DE TU SCRIPT
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1], 
         nombre: nombreArchivo,
-        tecnico: resp
+        tecnico: resp,
+        detalles: detallesTexto // <--- Enviamos el texto bien armado
     };
 
     try {
@@ -124,14 +138,16 @@ async function finalizar() {
         });
         
         document.getElementById("resumenFinal").innerHTML = `
-            <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
-                <p>Responsable: <strong>${resp}</strong></p>
-                <p>Archivo: <strong>${nombreArchivo}</strong></p>
-                <p style="margin-top: 10px; color: green; font-weight: bold;">✅ GUARDADO EN DRIVE</p>
+            <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #ddd; text-align: left;">
+                <h3 style="color: green; margin-top: 0;">✅ ¡ENVIADO CON ÉXITO!</h3>
+                <p><strong>Responsable:</strong> ${resp}</p>
+                <p><strong>Materiales:</strong> ${materialesCargados.length} items registrados.</p>
+                <p style="font-size: 0.85rem; color: #666; border-top: 1px solid #eee; pt-10;">Archivo: ${nombreArchivo}</p>
+                <button onclick="location.reload()" style="width: 100%; padding: 10px; background: #0b3c5d; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;">NUEVA CARGA</button>
             </div>
         `;
     } catch (error) {
         console.error("Error:", error);
-        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión con Drive, pero el registro se procesó.</p>`;
+        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión al subir el PDF.</p>`;
     }
 }
