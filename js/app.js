@@ -99,23 +99,25 @@ async function finalizar() {
 
     const resp = document.getElementById("tecnico").value;
 
-    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
+    // PREPARAR MATERIALES (Esto es lo que faltaba para el PDF)
+    const listaMateriales = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion}`).join("\n");
+
+    // 1. GENERAR NOMBRE
     const ahora = new Date();
     const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
 
-    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
+    // 2. MOSTRAR PANTALLA DE ÉXITO
     mostrarPantalla("pantallaComprobante");
     document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
 
-
-    // 3. ENVÍO AL SCRIPT (Asegúrate de que la URL sea la tuya)
+    // 3. ENVÍO
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1],
         nombre: nombreArchivo,
         tecnico: resp,
-        detalles: listaMateriales // <--- ESTO ES LO QUE TU SCRIPT ESCRIBE EN EL PDF
+        detalles: listaMateriales
     };
 
     try {
@@ -129,7 +131,7 @@ async function finalizar() {
             <div style="background: white; padding: 15px; border-radius: 10px; color: #333; text-align: left;">
                 <p>✅ <strong>GUARDADO EN DRIVE</strong></p>
                 <p>Responsable: ${resp}</p>
-                <p>Archivo: ${nombreArchivo}</p>
+                <p style="font-size: 0.8rem;">${nombreArchivo}</p>
             </div>
         `;
     } catch (error) {
@@ -138,31 +140,3 @@ async function finalizar() {
     }
 }
 
-    // 3. TU URL DE GOOGLE APPS SCRIPT
-    const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
-
-    const payload = {
-        imagen: firmaData.split(',')[1], 
-        nombre: nombreArchivo,
-        tecnico: resp
-    };
-
-    try {
-        await fetch(urlScript, {
-            method: 'POST',
-            mode: 'no-cors', 
-            body: JSON.stringify(payload)
-        });
-        
-        document.getElementById("resumenFinal").innerHTML = `
-            <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
-                <p>Responsable: <strong>${resp}</strong></p>
-                <p>Archivo: <strong>${nombreArchivo}</strong></p>
-                <p style="margin-top: 10px; color: green; font-weight: bold;">✅ GUARDADO EN DRIVE</p>
-            </div>
-        `;
-    } catch (error) {
-        console.error("Error:", error);
-        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión con Drive, pero el registro se procesó.</p>`;
-    }
-}
