@@ -31,34 +31,40 @@ function inicializarListas() {
 }
 
 function mostrarPantalla(id) {
-    // 1. Ocultar todas las secciones
+    // 1. Ocultamos todo
     document.querySelectorAll('.pantalla').forEach(p => {
         p.classList.remove('activa');
         p.style.display = 'none';
     });
     
-    // 2. Mostrar la sección actual
+    // 2. Mostramos la pantalla objetivo
     const destino = document.getElementById(id);
     if(destino) {
         destino.classList.add('activa');
         destino.style.display = 'block';
     }
 
-    // 3. REPARAR EL CUADRO DE FIRMA (Evita que se aplaste)
+    // 3. REPARACIÓN UNIVERSAL DEL CANVAS (PC y Móvil)
     if (id === 'pantallaFirma') {
+        // Usamos un pequeño delay para asegurar que el navegador ya dibujó el div
         setTimeout(() => {
             const canvas = document.getElementById('canvasFirma');
-            if (canvas) {
-                // Forzamos el tamaño interno al tamaño real que tiene en el celular
-                canvas.width = canvas.clientWidth;
-                canvas.height = 300; // Altura fija recomendada para celulares
+            const contenedor = canvas.parentElement;
+            
+            // Forzamos el ancho al del contenedor padre (funciona en PC y Celu)
+            const anchoReal = contenedor.clientWidth;
+            
+            // Solo si el ancho es válido, redimensionamos
+            if (anchoReal > 0) {
+                canvas.width = anchoReal;
+                canvas.height = 300; // Altura fija para que no se aplaste
                 
-                // Si tienes la función de inicialización en firma.js, la llamamos
-                if (typeof iniciarFirma === "function") {
-                    iniciarFirma();
+                // Reiniciamos el contexto de dibujo para que no se pierda el trazo
+                if (typeof inicializarFirma === "function") {
+                    inicializarFirma();
                 }
             }
-        }, 150); // Pequeño delay para que el navegador termine de renderizar el display:block
+        }, 250); 
     }
 }
 
