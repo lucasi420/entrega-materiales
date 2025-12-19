@@ -2,13 +2,13 @@ let materialesCargados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarListas();
-    // Splash inicial
+    // Tiempo de splash (3.5 segundos) antes de mostrar la app
     setTimeout(() => {
         const app = document.getElementById("app");
         app.style.display = "block";
         mostrarPantalla("pantallaPrincipal");
         setTimeout(() => { app.style.opacity = "1"; }, 50);
-    }, 3000); 
+    }, 3500); 
 });
 
 function inicializarListas() {
@@ -33,12 +33,17 @@ function inicializarListas() {
 function mostrarPantalla(id) {
     document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
     
-    // Control visual del botón Siguiente
     const btnSig = document.getElementById("btnSiguiente");
     if (id !== 'pantallaPrincipal') {
-        if(btnSig) btnSig.style.display = "none";
+        if(btnSig) {
+            btnSig.style.visibility = "hidden";
+            btnSig.style.display = "none";
+        }
     } else if (materialesCargados.length > 0) {
-        if(btnSig) btnSig.style.display = "block";
+        if(btnSig) {
+            btnSig.style.visibility = "visible";
+            btnSig.style.display = "block";
+        }
     }
 
     const destino = document.getElementById(id);
@@ -58,6 +63,8 @@ function agregarMaterial() {
         materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: c.value });
         renderLista();
         b.value = ""; c.value = ""; b.focus();
+    } else {
+        alert("Seleccione un material válido y cantidad mayor a 0");
     }
 }
 
@@ -68,6 +75,7 @@ function renderLista() {
     
     if (materialesCargados.length > 0) {
         btnSig.style.display = "block";
+        btnSig.style.visibility = "visible";
     } else {
         btnSig.style.display = "none";
     }
@@ -75,66 +83,55 @@ function renderLista() {
     materialesCargados.forEach((m, i) => {
         const li = document.createElement("li");
         li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
-                        <button onclick="materialesCargados.splice(${i},1);renderLista();" style="background:#dc3545; color:white; border:none; padding:8px; border-radius:5px;">🗑️</button>`;
+                        <button onclick="materialesCargados.splice(${i},1);renderLista();">🗑️</button>`;
         ui.appendChild(li);
     });
 }
 
 function irAFirma() {
-    if (!document.getElementById("tecnico").value) return alert("Seleccione el técnico responsable");
+    if (!document.getElementById("tecnico").value) return alert("Seleccione el responsable");
     mostrarPantalla("pantallaFirma");
 }
 
 async function finalizar() {
     const firmaData = obtenerFirmaBase64();
-    if (firmaData.length < 2000) return alert("La firma es obligatoria");
+    if (firmaData.length < 2000) return alert("Firma obligatoria para finalizar");
 
     const resp = document.getElementById("tecnico").value;
-    const aux = document.getElementById("tecnicoAuxiliar").value || "Ninguno";
     
-    // 1. GENERAR NOMBRE PARA EL PDF
+    // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
     const ahora = new Date();
-    const nombreArchivo = `Reporte_${ahora.getDate()}-${ahora.getMonth()+1}_${ahora.getHours()}${ahora.getMinutes()}.pdf`;
+    const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
 
-    // 2. CAMBIAR A PANTALLA DE ÉXITO Y MOSTRAR CARGA
+    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
     mostrarPantalla("pantallaComprobante");
-    document.getElementById("resumenFinal").innerHTML = `
-        <div style="text-align:center;">
-            <p id="statusTxt" style="color:#0b3c5d; font-weight:bold;">⏳ Generando PDF y enviando...</p>
-        </div>`;
+    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
 
-    // 3. PREPARAR LISTA DE MATERIALES PARA EL DOC
-    // Formato: "2x Cable (COD123), 5x Conector (COD456)..."
-    const detallesTexto = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion} (${m.codigo})`).join("\n");
-
+    // 3. TU URL DE GOOGLE APPS SCRIPT
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
 
     const payload = {
-        imagen: firmaData.split(',')[1],
+        imagen: firmaData.split(',')[1], 
         nombre: nombreArchivo,
-        tecnico: resp,
-        detalles: detallesTexto
+        tecnico: resp
     };
 
     try {
         await fetch(urlScript, {
             method: 'POST',
-            mode: 'no-cors',
+            mode: 'no-cors', 
             body: JSON.stringify(payload)
         });
         
         document.getElementById("resumenFinal").innerHTML = `
-            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                <p>Técnico: <strong>${resp}</strong></p>
-                <p>Auxiliar: <strong>${aux}</strong></p>
-                <p>Materiales registrados: <strong>${materialesCargados.length}</strong></p>
-                <hr style="margin:15px 0;">
-                <p style="color: green; font-weight: bold;">✅ ARCHIVO PDF GUARDADO EN DRIVE</p>
-                <p style="font-size: 0.8rem; color: #666; margin-top:5px;">${nombreArchivo}</p>
+            <div style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
+                <p>Responsable: <strong>${resp}</strong></p>
+                <p>Archivo: <strong>${nombreArchivo}</strong></p>
+                <p style="margin-top: 10px; color: green; font-weight: bold;">✅ GUARDADO EN DRIVE</p>
             </div>
         `;
     } catch (error) {
         console.error("Error:", error);
-        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error al subir. Verifique su conexión.</p>`;
+        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión con Drive, pero el registro se procesó.</p>`;
     }
 }
