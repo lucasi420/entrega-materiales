@@ -98,7 +98,12 @@ async function finalizar() {
     if (firmaData.length < 2000) return alert("Firma obligatoria para finalizar");
 
     const resp = document.getElementById("tecnico").value;
-    
+
+    // --- AGREGADO: PREPARAR LOS DATOS PARA EL PDF ---
+    // Unimos los materiales cargados en un solo texto separado por renglones
+    const listaMateriales = materialesCargados.map(m => `${m.cantidad}x ${m.descripcion}`).join("\n");
+    // -----------------------------------------------
+
     // 1. GENERAR NOMBRE: Fecha y Hora (DD-MM-YYYY_HH-mm)
     const ahora = new Date();
     const nombreArchivo = `${ahora.getDate()}-${ahora.getMonth()+1}-${ahora.getFullYear()}_${ahora.getHours()}-${ahora.getMinutes()}.png`;
@@ -106,6 +111,36 @@ async function finalizar() {
     // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
     mostrarPantalla("pantallaComprobante");
     document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo a Drive...</p>`;
+
+    // 3. ENVÍO AL SCRIPT (Asegúrate de que la URL sea la tuya)
+    const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
+
+    const payload = {
+        imagen: firmaData.split(',')[1],
+        nombre: nombreArchivo,
+        tecnico: resp,
+        detalles: listaMateriales // <--- ESTO ES LO QUE TU SCRIPT ESCRIBE EN EL PDF
+    };
+
+    try {
+        await fetch(urlScript, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(payload)
+        });
+        
+        document.getElementById("resumenFinal").innerHTML = `
+            <div style="background: white; padding: 15px; border-radius: 10px; color: #333; text-align: left;">
+                <p>✅ <strong>GUARDADO EN DRIVE</strong></p>
+                <p>Responsable: ${resp}</p>
+                <p>Archivo: ${nombreArchivo}</p>
+            </div>
+        `;
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión</p>`;
+    }
+}
 
     // 3. TU URL DE GOOGLE APPS SCRIPT
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
