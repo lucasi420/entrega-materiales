@@ -97,37 +97,51 @@ async function finalizar() {
     const firmaData = obtenerFirmaBase64();
     if (firmaData.length < 2000) return alert("Firma obligatoria para finalizar");
 
-    const resp = document.getElementById("tecnico").value;
+    // 1. CAPTURAR DATOS DEL HTML
+    const tecnico = document.getElementById("tecnico").value;
+    const auxiliar = document.getElementById("tecnicoAuxiliar").value; // ID correcto según tu HTML
     
-    // --- NUEVO: FORMATEO "BONITO" DE MATERIALES ---
+    if (!tecnico) return alert("Por favor, seleccione un técnico responsable.");
+
+    // 2. FORMATEO DE FECHA Y NOMBRE DE ARCHIVO
+    const ahora = new Date();
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const horas = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    
+    const nombreArchivo = `Reporte_${tecnico.replace(/ /g, "_")}_${dia}-${mes}_${horas}-${minutos}hs.pdf`;
+
+    // 3. ARMADO DEL CONTENIDO DEL TEXTO (Detalles)
     let detallesTexto = "REPORTE DE ENTREGA\n";
     detallesTexto += "--------------------------------\n";
-    detallesTexto += `Técnico: ${resp}\n`;
+    detallesTexto += `RESPONSABLE: ${tecnico}\n`;
+    
+    // Si hay auxiliar seleccionado, lo incluimos
+    if (auxiliar && auxiliar !== "") {
+        detallesTexto += `AUXILIAR: ${auxiliar}\n`;
+    }
+    
     detallesTexto += "--------------------------------\n";
     detallesTexto += "MATERIALES ENTREGADOS:\n";
     
     materialesCargados.forEach((m, index) => {
-        detallesTexto += `${index + 1}. [Cód: ${m.codigo}] - ${m.descripcion} (Cant: ${m.cantidad})\n`;
+        detallesTexto += `${index + 1}. [${m.codigo}] ${m.descripcion} (Cant: ${m.cantidad})\n`;
     });
     detallesTexto += "--------------------------------\n";
-    // ----------------------------------------------
 
-    // 1. GENERAR NOMBRE: Fecha y Hora
-    const ahora = new Date();
-    const nombreArchivo = `Reporte_${resp}_${ahora.getDate()}-${ahora.getMonth()+1}.pdf`;
-
-    // 2. MOSTRAR PANTALLA DE ÉXITO Y ESTADO
+    // 4. CAMBIAR PANTALLA Y MOSTRAR ESTADO
     mostrarPantalla("pantallaComprobante");
-    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Generando PDF y enviando a Drive...</p>`;
+    document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo reporte a Drive...</p>`;
 
-    // 3. URL DE TU SCRIPT
-    const urlScript = "https://script.google.com/macros/s/AKfycbwGXRE3YvHd6Zi_02U1QCWHzGrZ04BG6472obifM4yoiUSTtVjKhO6uqntUtPJeFkL7kw/exec"; 
+    // 5. ENVÍO A GOOGLE
+    const urlScript = "https://script.google.com/macros/s/AKfycbwUNqKrh3Fua2xypnfH_B-bAoRrRfGUyLmGK-1w68Dsd7gjxQMOHfb-hvnjXraziCm_LQ/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1], 
         nombre: nombreArchivo,
-        tecnico: resp,
-        detalles: detallesTexto // <--- Enviamos el texto bien armado
+        tecnico: tecnico,
+        detalles: detallesTexto
     };
 
     try {
@@ -137,18 +151,21 @@ async function finalizar() {
             body: JSON.stringify(payload)
         });
         
-        // Solo mostramos el mensaje, sin el botón extra
+        // RESULTADO FINAL (Sin el botón repetido, ya que usas el del HTML)
         document.getElementById("resumenFinal").innerHTML = `
-            <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #ddd; text-align: left;">
-                <h3 style="color: green; margin-top: 0;">✅ ¡ENVIADO CON ÉXITO!</h3>
-                <p><strong>Responsable:</strong> ${resp}</p>
-                <p style="font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 10px;">
+            <div style="background: white; padding: 20px; border-radius: 10px; border: 1px solid #ddd; text-align: left; margin-bottom: 20px;">
+                <h3 style="color: green; margin-top: 0; display: flex; align-items: center; gap: 8px;">
+                    ✅ ¡ENVIADO CON ÉXITO!
+                </h3>
+                <p><strong>Responsable:</strong> ${tecnico}</p>
+                ${auxiliar ? `<p><strong>Auxiliar:</strong> ${auxiliar}</p>` : ''}
+                <p style="font-size: 0.85rem; color: #666; border-top: 1px solid #eee; padding-top: 10px; margin-top: 10px;">
                     Archivo: ${nombreArchivo}
                 </p>
             </div>
         `;
     } catch (error) {
         console.error("Error:", error);
-        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de conexión al subir el PDF.</p>`;
+        document.getElementById("resumenFinal").innerHTML = `<p style="color:red;">❌ Error de conexión al subir el PDF.</p>`;
     }
 }
