@@ -2,133 +2,94 @@ let materialesCargados = [];
 
 document.addEventListener("DOMContentLoaded", () => {
     inicializarListas();
-    // Splash inicial de 3 segundos
-    setTimeout(() => {
-        const app = document.getElementById("app");
-        app.style.display = "block";
-        mostrarPantalla("pantallaPrincipal");
-        setTimeout(() => { app.style.opacity = "1"; }, 50);
-    }, 3000); 
 });
 
 function inicializarListas() {
     if (typeof TECNICOS !== "undefined") {
-        const r = document.getElementById("tecnico");
-        const a = document.getElementById("tecnicoAuxiliar");
+        const select = document.getElementById("tecnico");
         TECNICOS.sort().forEach(t => {
-            let o1 = document.createElement("option"); o1.value = t; o1.textContent = t;
-            let o2 = document.createElement("option"); o2.value = t; o2.textContent = t;
-            r.appendChild(o1); a.appendChild(o2);
+            let opt = document.createElement("option");
+            opt.value = t; opt.textContent = t;
+            select.appendChild(opt);
         });
     }
     if (typeof MATERIALES !== "undefined") {
         const dl = document.getElementById("listaSugerencias");
         MATERIALES.forEach(m => {
-            let o = document.createElement("option"); o.value = m.nombre;
-            dl.appendChild(o);
+            let opt = document.createElement("option");
+            opt.value = m.nombre;
+            dl.appendChild(opt);
         });
-    }
-}
-
-function mostrarPantalla(id) {
-    // 1. Ocultamos todo
-    document.querySelectorAll('.pantalla').forEach(p => {
-        p.classList.remove('activa');
-        p.style.display = 'none';
-    });
-    
-    // 2. Mostramos la pantalla objetivo
-    const destino = document.getElementById(id);
-    if(destino) {
-        destino.classList.add('activa');
-        destino.style.display = 'block';
-    }
-
-    // 3. REPARACIÓN UNIVERSAL DEL CANVAS (PC y Móvil)
-    if (id === 'pantallaFirma') {
-        // Usamos un pequeño delay para asegurar que el navegador ya dibujó el div
-        setTimeout(() => {
-            const canvas = document.getElementById('canvasFirma');
-            const contenedor = canvas.parentElement;
-            
-            // Forzamos el ancho al del contenedor padre (funciona en PC y Celu)
-            const anchoReal = contenedor.clientWidth;
-            
-            // Solo si el ancho es válido, redimensionamos
-            if (anchoReal > 0) {
-                canvas.width = anchoReal;
-                canvas.height = 300; // Altura fija para que no se aplaste
-                
-                // Reiniciamos el contexto de dibujo para que no se pierda el trazo
-                if (typeof inicializarFirma === "function") {
-                    inicializarFirma();
-                }
-            }
-        }, 250); 
     }
 }
 
 function agregarMaterial() {
     const b = document.getElementById("buscador");
     const c = document.getElementById("cantidad");
-    const mat = MATERIALES.find(m => m.nombre === b.value.trim());
-
-    if (mat && parseInt(c.value) > 0) {
-        // Los materiales se guardan en el array global, no se borran al cambiar de pantalla
-        materialesCargados.push({ codigo: mat.codigo, descripcion: mat.nombre, cantidad: c.value });
-        renderLista();
-        b.value = ""; c.value = ""; b.focus();
-    } else {
-        alert("Seleccione un material y cantidad válida");
+    
+    if (b.value.trim() !== "" && parseInt(c.value) > 0) {
+        materialesCargados.push({ nombre: b.value.trim(), cant: c.value });
+        b.value = ""; c.value = "";
+        actualizarVista();
     }
 }
 
-function renderLista() {
-    const ui = document.getElementById("lista");
-    ui.innerHTML = "";
-    const btnSig = document.getElementById("btnSiguiente");
-    
-    if (materialesCargados.length > 0) {
-        btnSig.style.display = "block";
-    } else {
-        btnSig.style.display = "none";
-    }
+function actualizarVista() {
+    const listaUI = document.getElementById("lista");
+    const firmaUI = document.getElementById("seccionFirma");
+    listaUI.innerHTML = "";
 
     materialesCargados.forEach((m, i) => {
-        const li = document.createElement("li");
-        li.innerHTML = `<div><strong>${m.descripcion}</strong><br><small>${m.codigo} x${m.cantidad}</small></div>
-                        <button onclick="materialesCargados.splice(${i},1);renderLista();" class="btn-borrar-item">🗑️</button>`;
-        ui.appendChild(li);
+        listaUI.innerHTML += `<li>
+            <span><strong>${m.cant}x</strong> ${m.nombre}</span>
+            <button class="btn-borrar-item" onclick="eliminarMaterial(${i})">X</button>
+        </li>`;
     });
+
+    if (materialesCargados.length > 0) {
+        firmaUI.style.display = "block";
+        // Ajustamos el tamaño del canvas al mostrarlo
+        setTimeout(() => {
+            const canvas = document.getElementById('canvasFirma');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 300;
+            if (typeof inicializarFirma === "function") inicializarFirma();
+        }, 100);
+    } else {
+        firmaUI.style.display = "none";
+    }
 }
 
-function irAFirma() {
-    if (!document.getElementById("tecnico").value) return alert("Por favor, seleccione el técnico responsable");
-    mostrarPantalla("pantallaFirma");
+function eliminarMaterial(index) {
+    materialesCargados.splice(index, 1);
+    actualizarVista();
 }
 
 async function finalizar() {
-    const firmaData = obtenerFirmaBase64();
-    // Validamos que haya firmado (un base64 muy corto es un canvas vacío)
-    if (firmaData.length < 2000) return alert("Debe firmar el comprobante para finalizar");
+    const canvas = document.getElementById('canvasFirma');
+    const firmaData = canvas.toDataURL('image/png');
+    const tecnico = document.getElementById("tecnico").value;
+    const btn = document.getElementById("btnFinalizar");
 
-    const resp = document.getElementById("tecnico").value;
-    const aux = document.getElementById("tecnicoAuxiliar").value || "Sin auxiliar";
-    
-    // Convertimos la lista de materiales acumulada en un texto para el Google Doc
-    const textoMateriales = materialesCargados.map(m => `• ${m.cantidad}x ${m.descripcion} (${m.codigo})`).join("\n");
+    if (!tecnico) return alert("Seleccione el técnico responsable");
+    if (firmaData.length < 2000) return alert("Firma obligatoria");
 
-    // Cambiamos a la pantalla de éxito/carga
-    mostrarPantalla("pantallaComprobante");
-    document.getElementById("resumenFinal").innerHTML = `<p style="color:#0b3c5d;">⌛ Creando PDF y subiendo a Drive...</p>`;
+    // 1. Armamos el texto de materiales para el Google Doc
+    const textoMateriales = materialesCargados.map(m => m.cant + "x " + m.nombre).join("\n");
 
+    // 2. Estado de carga
+    btn.disabled = true;
+    btn.innerText = "⌛ ENVIANDO A DRIVE...";
+    btn.style.background = "#888";
+
+    // 3. Tu URL de Google Apps Script
     const urlScript = "https://script.google.com/macros/s/AKfycbw0VPIibIlODwOoTuQGo7tnXQH--u_6jRQmPnVQg2pufJCjf0cPb9CauY5lU7OQ-2XJcw/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1],
-        nombre: `Ticket_${Date.now()}.pdf`,
-        tecnico: resp,
-        detalles: `AUXILIAR: ${aux}\n\nLISTA DE MATERIALES:\n${textoMateriales}`
+        nombre: `Reporte_${Date.now()}.pdf`,
+        tecnico: tecnico,
+        detalles: textoMateriales
     };
 
     try {
@@ -138,17 +99,12 @@ async function finalizar() {
             body: JSON.stringify(payload)
         });
         
-        document.getElementById("resumenFinal").innerHTML = `
-            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #333;">
-                <h3 style="color: green;">✅ ENVÍO EXITOSO</h3>
-                <p><strong>Responsable:</strong> ${resp}</p>
-                <p><strong>Materiales:</strong> ${materialesCargados.length} ítems registrados.</p>
-                <hr>
-                <p><small>El comprobante PDF ya está disponible en tu Google Drive.</small></p>
-            </div>
-        `;
-    } catch (error) {
-        console.error("Error:", error);
-        document.getElementById("resumenFinal").innerHTML = `<p>❌ Error de red. Intente nuevamente.</p>`;
+        alert("✅ REPORTE GENERADO CON ÉXITO");
+        location.reload(); // Recarga para nueva carga
+    } catch (e) {
+        alert("❌ Error de conexión. Reintente.");
+        btn.disabled = false;
+        btn.innerText = "ENVIAR REPORTE PDF";
+        btn.style.background = "#28a745";
     }
 }
