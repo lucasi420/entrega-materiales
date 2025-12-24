@@ -135,7 +135,7 @@ async function finalizar() {
     document.getElementById("resumenFinal").innerHTML = `<p style="color: #0b3c5d;">⌛ Subiendo reporte a Drive...</p>`;
 
     // 5. ENVÍO A GOOGLE
-    const urlScript = "https://script.google.com/macros/s/AKfycbwUNqKrh3Fua2xypnfH_B-bAoRrRfGUyLmGK-1w68Dsd7gjxQMOHfb-hvnjXraziCm_LQ/exec"; 
+    const urlScript = "https://script.google.com/macros/s/AKfycbzEdY2RPo3evcdTcxJyXOKjCpFZOs_ap9Q3R8IommgdSlSCTK1NueossuCPE57UXmUKdQ/exec"; 
 
     const payload = {
         imagen: firmaData.split(',')[1], 
