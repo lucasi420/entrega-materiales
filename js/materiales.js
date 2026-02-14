@@ -205,6 +205,7 @@ const MATERIALES = [
   { codigo: "104-1406-019-0068", nombre: "Tap de 1 Ghz, 32/23 dB, FD 8 Puertos" },
   { codigo: "104-1406-055-0059", nombre: "Tap de 1 Ghz, 8 db HFC Terminal, 4 ptos" },
   { codigo: "405-4303-002-0070", nombre: "Tarjeta p/Decodificador CAS" },
+  { codigo: "0", nombre: "MOVIL" },
   { codigo: "406-4370-001-0027", nombre: "Tijera para corte de kevlar" },
   { codigo: "404-4222-001-0005", nombre: "Torniqueta Nº7 zincado" },
   { codigo: "104-1402-044-0017", nombre: "Transmisor Optico Rackeable 10 mW" },
